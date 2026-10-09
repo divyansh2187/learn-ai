@@ -15,6 +15,7 @@ import exerciseRoutes from "./routes/exercise.routes";
 import exerciseProgressRoutes from "./routes/exercise-progress.routes";
 import projectRoutes from "./routes/project.routes";
 import projectSubmissionRoutes from "./routes/project-submission.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 
 const app = express();
 
@@ -69,5 +70,7 @@ app.use(
   "/api/project-submissions",
   projectSubmissionRoutes
 );
+
+app.use("/api/dashboard", dashboardRoutes);
 
 export default app;
