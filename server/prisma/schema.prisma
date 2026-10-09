@@ -16,14 +16,17 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  courses        Course[]
-  sessions       Session[]
-  courseProgress CourseProgress[]
-  lessonProgress LessonProgress[]
-  quizAttempts   QuizAttempt[]
-  notes          Note[]
-  bookmarks      Bookmark[]
-  flashcards     Flashcard[]
+  courses            Course[]
+  sessions           Session[]
+  courseProgress     CourseProgress[]
+  lessonProgress     LessonProgress[]
+  exerciseProgress   ExerciseProgress[]
+  projectSubmissions ProjectSubmission[]
+  quizAttempts       QuizAttempt[]
+  notes              Note[]
+  bookmarks          Bookmark[]
+  flashcards         Flashcard[]
+  youtubeResourceProgress YouTubeResourceProgress[]
 
   @@index([email])
 }
@@ -131,7 +134,8 @@ model Exercise {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson   Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress ExerciseProgress[]
 
   @@index([lessonId])
 }
@@ -201,6 +205,7 @@ model YouTubeResource {
   createdAt   DateTime  @default(now())
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userProgress YouTubeResourceProgress[]
 
   @@unique([lessonId, videoId])
   @@index([lessonId])
@@ -237,9 +242,54 @@ model Project {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions ProjectSubmission[]
 
   @@index([courseId])
+}
+
+model ProjectSubmission {
+  id String @id @default(cuid())
+
+  projectId String
+  userId    String
+
+  status ProjectSubmissionStatus @default(IN_PROGRESS)
+
+  githubUrl String?
+  liveUrl   String?
+  notes     String?
+
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@index([projectId])
+}
+
+model ExerciseProgress {
+  id         String @id @default(cuid())
+  userId     String
+  exerciseId String
+
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@index([userId])
+  @@index([exerciseId])
 }
 
 model CourseProgress {
@@ -372,4 +422,27 @@ enum ResourceType {
   BOOK
   WEBSITE
   OTHER
+}
+
+enum ProjectSubmissionStatus {
+  IN_PROGRESS
+  SUBMITTED
+  COMPLETED
+}
+
+model YouTubeResourceProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  resourceId String
+  isWatched  Boolean  @default(false)
+  watchedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource YouTubeResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId])
+  @@index([userId])
+  @@index([resourceId])
 }
