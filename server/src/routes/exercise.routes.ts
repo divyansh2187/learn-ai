@@ -6,50 +6,7 @@ import {
 } from "../middleware/auth.middleware";
 
 const router = Router();
-// ============================================
-// GET SINGLE EXERCISE
-// ============================================
 
-router.get("/:exerciseId", requireAuth, async (req, res) => {
-  try {
-    const authReq = req as AuthenticatedRequest;
-
-    if (!authReq.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-        code: "AUTH_REQUIRED",
-      });
-    }
-
-    const { exerciseId } = req.params;
-
-    const exercise = await prisma.exercise.findUnique({
-      where: {
-        id: exerciseId,
-      },
-    });
-
-    if (!exercise) {
-      return res.status(404).json({
-        success: false,
-        message: "Exercise not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: exercise,
-    });
-  } catch (error) {
-    console.error("Get exercise error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to get exercise",
-    });
-  }
-});
 
 // ============================================
 // GET EXERCISES FOR A LESSON
@@ -104,6 +61,183 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
     });
   }
 });
+
+
+
+// ============================================
+// GET EXERCISE PROGRESS FOR CURRENT USER
+// ============================================
+
+router.get("/progress/:exerciseId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { exerciseId } = req.params;
+
+    const exercise = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+      select: { id: true },
+    });
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercise not found",
+      });
+    }
+
+    const progress = await prisma.exerciseProgress.findUnique({
+      where: {
+        userId_exerciseId: {
+          userId: authReq.user.id,
+          exerciseId,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: progress ?? {
+        exerciseId,
+        completed: false,
+        completedAt: null,
+      },
+    });
+  } catch (error) {
+    console.error("Get exercise progress error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get exercise progress",
+    });
+  }
+});
+
+// ============================================
+// SAVE EXERCISE PROGRESS FOR CURRENT USER
+// ============================================
+
+router.put("/progress/:exerciseId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const { exerciseId } = req.params;
+    const { completed } = req.body;
+
+    if (typeof completed !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "completed must be a boolean",
+      });
+    }
+
+    const exercise = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+      select: { id: true },
+    });
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercise not found",
+      });
+    }
+
+    const progress = await prisma.exerciseProgress.upsert({
+      where: {
+        userId_exerciseId: {
+          userId: authReq.user.id,
+          exerciseId,
+        },
+      },
+      create: {
+        userId: authReq.user.id,
+        exerciseId,
+        completed,
+        completedAt: completed ? new Date() : null,
+      },
+      update: {
+        completed,
+        completedAt: completed ? new Date() : null,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Exercise progress saved",
+      data: progress,
+    });
+  } catch (error) {
+    console.error("Save exercise progress error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save exercise progress",
+    });
+  }
+});
+
+
+
+// ============================================
+// GET SINGLE EXERCISE
+// ============================================
+
+router.get("/:exerciseId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
+      });
+    }
+
+    const { exerciseId } = req.params;
+
+    const exercise = await prisma.exercise.findUnique({
+      where: {
+        id: exerciseId,
+      },
+    });
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercise not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Get exercise error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get exercise",
+    });
+  }
+});
+
 
 // ============================================
 // UPDATE EXERCISE

@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import prisma from "../config/database";
 import {
@@ -60,7 +59,7 @@ router.get("/overview", requireAuth, async (req, res) => {
       orderBy: { updatedAt: "desc" },
     });
 
-    const [quizAttempts, learningTime] = await Promise.all([
+    const [quizAttempts, learningTime, lessonActivities] = await Promise.all([
       prisma.quizAttempt.findMany({
         where: { userId },
         select: {
@@ -75,18 +74,59 @@ router.get("/overview", requireAuth, async (req, res) => {
         where: { userId },
         _sum: { timeSpent: true },
       }),
+
+      prisma.lessonProgress.findMany({
+        where: {
+          userId,
+          timeSpent: { gt: 0 },
+        },
+        select: {
+          updatedAt: true,
+        },
+        orderBy: { updatedAt: "desc" },
+      }),
     ]);
+
+    const activityDays = new Set(
+      lessonActivities.map((activity) =>
+        new Date(activity.updatedAt).toLocaleDateString("en-CA"),
+      ),
+    );
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayKey = today.toLocaleDateString("en-CA");
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toLocaleDateString("en-CA");
+
+    let studyStreak = 0;
+    const currentDay = new Date(today);
+
+    if (activityDays.has(todayKey) || activityDays.has(yesterdayKey)) {
+      while (activityDays.has(currentDay.toLocaleDateString("en-CA"))) {
+        studyStreak++;
+        currentDay.setDate(currentDay.getDate() - 1);
+      }
+    }
+    console.log("Study streak debug:", {
+      userId,
+      activitiesFound: lessonActivities.length,
+      activityDays: [...activityDays],
+      today: todayKey,
+      yesterday: yesterdayKey,
+      studyStreak,
+    });
 
     let totalLessons = 0;
     let completedLessons = 0;
 
     const courseStats = courses.map((course) => {
-      const lessons = course.modules.flatMap(
-        (module) => module.lessons
-      );
+      const lessons = course.modules.flatMap((module) => module.lessons);
 
       const completed = lessons.filter((lesson) =>
-        lesson.progress.some((progress) => progress.completed)
+        lesson.progress.some((progress) => progress.completed),
       ).length;
 
       totalLessons += lessons.length;
@@ -97,8 +137,7 @@ router.get("/overview", requireAuth, async (req, res) => {
         : 0;
 
       const nextLesson = lessons.find(
-        (lesson) =>
-          !lesson.progress.some((progress) => progress.completed)
+        (lesson) => !lesson.progress.some((progress) => progress.completed),
       );
 
       return {
@@ -119,23 +158,22 @@ router.get("/overview", requireAuth, async (req, res) => {
     });
 
     const validQuizAttempts = quizAttempts.filter(
-      (attempt) => attempt.totalPoints > 0
+      (attempt) => attempt.totalPoints > 0,
     );
 
     const averageQuizScore = validQuizAttempts.length
       ? Math.round(
           validQuizAttempts.reduce(
-            (sum, attempt) =>
-              sum + (attempt.score / attempt.totalPoints) * 100,
-            0
-          ) / validQuizAttempts.length
+            (sum, attempt) => sum + (attempt.score / attempt.totalPoints) * 100,
+            0,
+          ) / validQuizAttempts.length,
         )
       : null;
 
     const completedCourses = courseStats.filter(
       (course) =>
         course.totalLessons > 0 &&
-        course.completedLessons === course.totalLessons
+        course.completedLessons === course.totalLessons,
     ).length;
 
     return res.status(200).json({
@@ -146,8 +184,7 @@ router.get("/overview", requireAuth, async (req, res) => {
           completedCourses,
           inProgressCourses: courses.filter(
             (course) =>
-              course.progressPercent > 0 &&
-              course.progressPercent < 100
+              course.progressPercent > 0 && course.progressPercent < 100,
           ).length,
           totalLessons,
           completedLessons,
@@ -155,8 +192,8 @@ router.get("/overview", requireAuth, async (req, res) => {
           overallProgressPercent: totalLessons
             ? Math.round((completedLessons / totalLessons) * 100)
             : 0,
-          totalLearningTimeSeconds:
-            learningTime._sum.timeSpent ?? 0,
+          totalLearningTimeSeconds: learningTime._sum.timeSpent ?? 0,
+          studyStreak,
           quizAttempts: quizAttempts.length,
           averageQuizScore,
         },
