@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const courseId = searchParams.get("courseId");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,8 +40,12 @@ export default function RegisterPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
-        }
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            password,
+          }),
+        },
       );
 
       const result = await response.json();
@@ -48,12 +54,35 @@ export default function RegisterPage() {
         throw new Error(result.message || "Unable to create your account.");
       }
 
-      router.push("/login?registered=true");
+      if (courseId) {
+        const API_URL =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+        const enrollResponse = await fetch(
+          `${API_URL}/courses/${encodeURIComponent(courseId)}/enroll`,
+          {
+            method: "POST",
+            credentials: "include",
+          },
+        );
+
+        const enrollResult = await enrollResponse.json();
+
+        if (!enrollResponse.ok || !enrollResult.success) {
+          throw new Error(
+            enrollResult.message ||
+              "Account created, but course enrollment failed.",
+          );
+        }
+      }
+
+      router.replace("/dashboard");
+      router.refresh();
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Something went wrong. Please try again."
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -110,7 +139,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="mb-2 block text-sm text-[#E7DDEA]">
+            <label
+              htmlFor="email"
+              className="mb-2 block text-sm text-[#E7DDEA]"
+            >
               Email address
             </label>
             <input
@@ -126,7 +158,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm text-[#E7DDEA]">
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm text-[#E7DDEA]"
+            >
               Password
             </label>
             <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] pr-4 transition focus-within:border-[#D934F7]/70 focus-within:ring-2 focus-within:ring-[#D934F7]/10">
@@ -192,7 +227,11 @@ export default function RegisterPage() {
         <p className="mt-7 text-center text-sm text-[#A69BAC]">
           Already have an account?{" "}
           <Link
-            href="/login"
+            href={
+              courseId
+                ? `/login?courseId=${encodeURIComponent(courseId)}`
+                : "/login"
+            }
             className="font-medium text-[#D934F7] hover:text-white"
           >
             Sign in

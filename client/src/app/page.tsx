@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const features = [
   {
@@ -32,9 +32,56 @@ const lessons = [
   { title: "Building your first AI model", time: "24 min", done: false },
 ];
 
+type PublicCourse = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  description: string | null;
+  thumbnail: string | null;
+  category: string | null;
+  difficulty: string | null;
+  estimatedMinutes: number | null;
+  modules: {
+    _count: {
+      lessons: number;
+    };
+  }[];
+};
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [courseTopic, setCourseTopic] = useState("");
+  const [courses, setCourses] = useState<PublicCourse[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [coursesError, setCoursesError] = useState("");
+
+  useEffect(() => {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+    async function loadCourses() {
+      try {
+        const response = await fetch(`${apiUrl}/courses/public`);
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error("Unable to load courses.");
+        }
+
+        setCourses(result.data ?? []);
+      } catch {
+        setCoursesError("Courses couldn't load. Please try again.");
+      } finally {
+        setCoursesLoading(false);
+      }
+    }
+
+    void loadCourses();
+  }, []);
+
+  function selectCourse(courseId: string) {
+    window.location.href = `/login?courseId=${encodeURIComponent(courseId)}`;
+  }
 
   return (
     <main className="min-h-screen overflow-hidden">
@@ -51,6 +98,9 @@ export default function Home() {
         <nav className="hidden items-center gap-8 text-sm text-[#A69BAC] md:flex">
           <a href="#features" className="transition hover:text-white">
             Features
+          </a>
+          <a href="#courses" className="transition hover:text-white">
+            Courses
           </a>
           <a href="#how-it-works" className="transition hover:text-white">
             How it works
@@ -297,6 +347,136 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section
+        id="courses"
+        className="border-t border-white/[0.07] px-6 py-24 lg:px-10 lg:py-28"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.22em] text-[#D934F7]">
+                THE LEARNAI CATALOG
+              </p>
+              <h2 className="mt-5 text-3xl font-medium tracking-tight sm:text-5xl">
+                Find your next course.
+              </h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-[#A69BAC] sm:text-base">
+                Explore AI-generated learning paths and start building a skill
+                at your own pace.
+              </p>
+            </div>
+            <span className="text-sm text-[#897A91]">
+              {courses.length} {courses.length === 1 ? "course" : "courses"}{" "}
+              available
+            </span>
+          </div>
+
+          {coursesLoading ? (
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-64 animate-pulse rounded-3xl border border-white/[0.08] bg-white/[0.03]"
+                />
+              ))}
+            </div>
+          ) : coursesError ? (
+            <p
+              role="alert"
+              className="mt-10 rounded-2xl border border-red-400/20 bg-red-400/[0.05] p-5 text-sm text-red-300"
+            >
+              {coursesError}
+            </p>
+          ) : courses.length === 0 ? (
+            <div className="mt-10 rounded-3xl border border-white/[0.08] bg-white/[0.025] px-6 py-12 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D934F7]/10 text-2xl text-[#D934F7]">
+                ✳
+              </div>
+              <h3 className="mt-5 text-lg font-medium">
+                Your next learning journey starts here.
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#A69BAC]">
+                No public courses yet. New courses will appear here once they're
+                generated and published.
+              </p>
+              <a
+                href="/register"
+                className="mt-6 inline-flex rounded-full bg-[#BCF429] px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#D4FF61]"
+              >
+                Create a course ↗
+              </a>
+            </div>
+          ) : (
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {courses.map((course) => {
+                const lessonCount = course.modules.reduce(
+                  (total, module) => total + module._count.lessons,
+                  0,
+                );
+
+                return (
+                  <article
+                    key={course.id}
+                    className="group flex flex-col overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.025] transition duration-300 hover:-translate-y-1 hover:border-[#D934F7]/40 hover:bg-white/[0.045]"
+                  >
+                    <div className="relative flex h-44 items-end overflow-hidden bg-gradient-to-br from-[#35103F] via-[#1B0C27] to-[#09030E] p-5">
+                      {course.thumbnail && (
+                        <img
+                          src={course.thumbnail}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#09030E] via-[#09030E]/20 to-transparent" />
+                      <span className="relative rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-xs text-white backdrop-blur">
+                        {course.category || "Learning path"}
+                      </span>
+                      <span className="relative ml-auto rounded-full border border-[#BCF429]/20 bg-[#09030E]/60 px-3 py-1.5 text-xs text-[#BCF429] backdrop-blur">
+                        {course.difficulty || "All levels"}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-xl font-medium tracking-tight transition group-hover:text-[#E66AFF]">
+                        {course.title}
+                      </h3>
+
+                      <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-[#A69BAC]">
+                        {course.subtitle ||
+                          course.description ||
+                          "Explore this learning path and build your skills step by step."}
+                      </p>
+
+                      <div className="mt-5 flex flex-wrap gap-3 text-xs text-[#897A91]">
+                        <span>
+                          {lessonCount}{" "}
+                          {lessonCount === 1 ? "lesson" : "lessons"}
+                        </span>
+                        <span>·</span>
+                        <span>
+                          {course.estimatedMinutes
+                            ? `${course.estimatedMinutes} min`
+                            : `${course.modules.length} modules`}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => selectCourse(course.id)}
+                        className="mt-6 flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold transition hover:border-[#D934F7]/40 hover:bg-[#D934F7]/10"
+                      >
+                        Explore course
+                        <span className="text-[#D934F7]">↗</span>
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

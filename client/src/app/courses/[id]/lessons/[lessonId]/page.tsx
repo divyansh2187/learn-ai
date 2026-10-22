@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
+import NotesPanel from "./NotesPanel";
+import BookmarkButton from "./BookmarkButton";
+import FlashcardsPanel from "./FlashcardsPanel";
 
 type DataRecord = Record<string, unknown>;
 
@@ -1372,8 +1375,11 @@ export default function LessonPage() {
                 })}
               </div>
             </Section>
-          )}
 
+          )}
+          <BookmarkButton lessonId={lessonId} />
+          <NotesPanel lessonId={lessonId} />
+          <FlashcardsPanel lessonId={lessonId} />
           <section className="rounded-3xl border border-[#BCF429]/15 bg-gradient-to-br from-[#BCF429]/[0.06] to-transparent p-6 sm:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>

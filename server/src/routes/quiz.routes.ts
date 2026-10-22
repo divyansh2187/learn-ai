@@ -190,8 +190,12 @@ router.post("/:quizId/submit", requireAuth, async (req, res) => {
           ? value.trim().toLowerCase()
           : JSON.stringify(value);
 
+  
+
       const isCorrect =
+  normalize(rawUserAnswer) === normalize(correctAnswer) ||
   normalize(userAnswer) === normalize(correctAnswer);
+
       if (isCorrect) {
         score += question.points;
       }

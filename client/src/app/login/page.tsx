@@ -1,15 +1,15 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const courseId = searchParams.get("courseId");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +41,25 @@ export default function LoginPage() {
         throw new Error(
           result.message || "Unable to log in. Check your details.",
         );
+      }
+
+      if (courseId) {
+        const enrollResponse = await fetch(
+          `${API_URL}/courses/${encodeURIComponent(courseId)}/enroll`,
+          {
+            method: "POST",
+            credentials: "include",
+          },
+        );
+
+        const enrollResult = await enrollResponse.json();
+
+        if (!enrollResponse.ok || !enrollResult.success) {
+          throw new Error(
+            enrollResult.message ||
+              "You signed in, but we couldn't enroll you in this course. Please try again.",
+          );
+        }
       }
 
       router.replace("/dashboard");
@@ -158,7 +177,11 @@ export default function LoginPage() {
         <p className="text-center text-sm text-[#A69BAC]">
           New to LearnAI?{" "}
           <Link
-            href="/register"
+            href={
+              courseId
+                ? `/register?courseId=${encodeURIComponent(courseId)}`
+                : "/register"
+            }
             className="font-medium text-[#D934F7] hover:text-white"
           >
             Create an account

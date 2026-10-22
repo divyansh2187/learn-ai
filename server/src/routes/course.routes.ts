@@ -271,6 +271,8 @@ router.post("/generate", requireAuth, async (req, res) => {
         data: {
           userId,
 
+          isPublic: true,
+
           title: outline.title.trim(),
 
           subtitle: outline.subtitle ? String(outline.subtitle).trim() : null,
@@ -441,7 +443,16 @@ router.post(
       const course = await prisma.course.findFirst({
         where: {
           id: courseId,
-          userId: authReq.user.id,
+          OR: [
+            { userId: authReq.user.id },
+            {
+              enrollments: {
+                some: {
+                  userId: authReq.user.id,
+                },
+              },
+            },
+          ],
         },
         include: {
           modules: {
@@ -852,6 +863,151 @@ router.post(
   },
 );
 
+/* Get public courses for the homepage */
+router.get("/public", async (req, res) => {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        isPublic: true,
+        isArchived: false,
+      },
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        description: true,
+        thumbnail: true,
+        category: true,
+        difficulty: true,
+        estimatedMinutes: true,
+        _count: {
+          select: {
+            modules: true,
+          },
+        },
+        modules: {
+          select: {
+            _count: {
+              select: {
+                lessons: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: courses,
+    });
+  } catch (error) {
+    console.error("Fetch public courses error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch public courses",
+    });
+  }
+});
+
+/* Enroll the authenticated user in a public course */
+router.post("/:courseId/enroll", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
+      });
+    }
+
+    const { courseId } = req.params;
+    const userId = authReq.user.id;
+
+    const course = await prisma.course.findFirst({
+      where: {
+        id: courseId,
+        isPublic: true,
+        isArchived: false,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Public course not found",
+      });
+    }
+
+    if (
+      await prisma.courseEnrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId,
+          },
+        },
+      })
+    ) {
+      return res.status(200).json({
+        success: true,
+        message: "Already enrolled",
+        data: { courseId },
+      });
+    }
+
+    const totalLessons = await prisma.lesson.count({
+      where: {
+        module: { courseId },
+      },
+    });
+
+    await prisma.$transaction([
+      prisma.courseEnrollment.create({
+        data: {
+          userId,
+          courseId,
+        },
+      }),
+      prisma.courseProgress.upsert({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId,
+          },
+        },
+        create: {
+          userId,
+          courseId,
+          totalLessons,
+        },
+        update: {},
+      }),
+    ]);
+
+    return res.status(201).json({
+      success: true,
+      message: "Successfully enrolled",
+      data: { courseId },
+    });
+  } catch (error) {
+    console.error("Course enrollment error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to enroll in course",
+    });
+  }
+});
 
 /* Get one course with its modules and lessons */
 router.get("/:courseId", requireAuth, async (req, res) => {
@@ -870,7 +1026,16 @@ router.get("/:courseId", requireAuth, async (req, res) => {
     const course = await prisma.course.findFirst({
       where: {
         id: courseId,
-        userId: authReq.user.id,
+        OR: [
+          { userId: authReq.user.id },
+          {
+            enrollments: {
+              some: {
+                userId: authReq.user.id,
+              },
+            },
+          },
+        ],
       },
       include: {
         modules: {
@@ -901,95 +1066,93 @@ router.get("/:courseId", requireAuth, async (req, res) => {
     return res.status(500).json({
       success: false,
       message:
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch course",
+        error instanceof Error ? error.message : "Failed to fetch course",
     });
   }
 });
 
-
 /* Get one lesson with its learning resources */
-router.get(
-  "/:courseId/lessons/:lessonId",
-  requireAuth,
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
+router.get("/:courseId/lessons/:lessonId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
 
-      if (!authReq.user) {
-        return res.status(401).json({
-          success: false,
-          message: "Authentication required",
-        });
-      }
-
-      const { courseId, lessonId } = req.params;
-
-      const course = await prisma.course.findFirst({
-        where: {
-          id: courseId,
-          userId: authReq.user.id,
-        },
-        select: {
-          id: true,
-        },
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
       });
+    }
 
-      if (!course) {
-        return res.status(404).json({
-          success: false,
-          message: "Course not found",
-        });
-      }
+    const { courseId, lessonId } = req.params;
 
-      const lesson = await prisma.lesson.findFirst({
-        where: {
-          id: lessonId,
-          module: {
-            courseId,
-          },
-        },
-        include: {
-          exercises: true,
-          quiz: {
-            include: {
-              questions: {
-                orderBy: {
-                  order: "asc",
-                },
+    const course = await prisma.course.findFirst({
+      where: {
+        id: courseId,
+        OR: [
+          { userId: authReq.user.id },
+          {
+            enrollments: {
+              some: {
+                userId: authReq.user.id,
               },
             },
           },
-         resources: true,
-        },
-      });
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
 
-      if (!lesson) {
-        return res.status(404).json({
-          success: false,
-          message: "Lesson not found",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        data: lesson,
-      });
-    } catch (error) {
-      console.error("Fetch lesson error:", error);
-
-      return res.status(500).json({
+    if (!course) {
+      return res.status(404).json({
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch lesson",
+        message: "Course not found",
       });
     }
+
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        id: lessonId,
+        module: {
+          courseId,
+        },
+      },
+      include: {
+        exercises: true,
+        quiz: {
+          include: {
+            questions: {
+              orderBy: {
+                order: "asc",
+              },
+            },
+          },
+        },
+        resources: true,
+      },
+    });
+
+    if (!lesson) {
+      return res.status(404).json({
+        success: false,
+        message: "Lesson not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: lesson,
+    });
+  } catch (error) {
+    console.error("Fetch lesson error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to fetch lesson",
+    });
   }
-);
-
-
+});
 
 export default router;

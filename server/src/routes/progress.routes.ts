@@ -23,6 +23,46 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
     const { lessonId } = req.params;
     const userId = authReq.user.id;
 
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: {
+        module: {
+          select: {
+            courseId: true,
+          },
+        },
+      },
+    });
+
+    if (!lesson) {
+      return res.status(404).json({
+        success: false,
+        message: "Lesson not found",
+      });
+    }
+
+    const accessibleCourse = await prisma.course.findFirst({
+      where: {
+        id: lesson.module.courseId,
+        OR: [
+          { userId },
+          {
+            enrollments: {
+              some: { userId },
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!accessibleCourse) {
+      return res.status(404).json({
+        success: false,
+        message: "Lesson not found",
+      });
+    }
+
     const progress = await prisma.lessonProgress.findUnique({
       where: {
         userId_lessonId: {
@@ -31,7 +71,6 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
         },
       },
     });
-
     return res.status(200).json({
       success: true,
       data: progress,
@@ -90,13 +129,53 @@ router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
 
     const courseId = lesson.module.courseId;
 
+    // Ensure this lesson belongs to a course owned by the user.
+    const accessibleCourse = await prisma.course.findFirst({
+      where: {
+        id: courseId,
+        OR: [
+          { userId },
+          {
+            enrollments: {
+              some: { userId },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!accessibleCourse) {
+      return res.status(404).json({
+        success: false,
+        message: "Lesson not found",
+      });
+    }
+
     // --------------------------------
     // Validate progress
     // --------------------------------
 
-    const progressValue = Math.min(100, Math.max(0, Number(progress) || 0));
+    const parsedProgress = Number(progress);
+    const parsedTimeSpent = Number(timeSpent ?? 0);
 
-    const timeSpentValue = Math.max(0, Number(timeSpent) || 0);
+    if (
+      !Number.isFinite(parsedProgress) ||
+      parsedProgress < 0 ||
+      parsedProgress > 100 ||
+      !Number.isFinite(parsedTimeSpent) ||
+      parsedTimeSpent < 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Progress must be 0–100 and timeSpent must be non-negative",
+      });
+    }
+
+    const progressValue = parsedProgress;
+    const timeSpentValue = parsedTimeSpent;
 
     const isCompleted = completed === true || progressValue >= 100;
 
@@ -241,6 +320,30 @@ router.get("/course/:courseId", requireAuth, async (req, res) => {
 
     const { courseId } = req.params;
     const userId = authReq.user.id;
+
+    const accessibleCourse = await prisma.course.findFirst({
+      where: {
+        id: courseId,
+        OR: [
+          { userId },
+          {
+            enrollments: {
+              some: { userId },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!accessibleCourse) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
 
     // Get course progress
     const courseProgress = await prisma.courseProgress.findUnique({

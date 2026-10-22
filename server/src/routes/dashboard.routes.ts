@@ -24,8 +24,15 @@ router.get("/overview", requireAuth, async (req, res) => {
     // Only courses owned by the authenticated student
     const courses = await prisma.course.findMany({
       where: {
-        userId,
         isArchived: false,
+        OR: [
+          { userId },
+          {
+            enrollments: {
+              some: { userId },
+            },
+          },
+        ],
       },
       select: {
         id: true,
