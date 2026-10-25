@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const contactDetails = {
+  github: "https://github.com/divyansh2187",
+  linkedin: "https://www.linkedin.com/in/divyanshu-sargara-8b5802325/",
+  email: "Divyanshbhati1227@gmail.com",
+  phone: "+919509102373",
+};
+
 const features = [
   {
     number: "01",
@@ -344,7 +351,7 @@ export default function Home() {
           border: 1px solid rgba(35, 70, 115, 0.16);
           border-radius: 17px;
           color: #111827;
-          background: #CADCF1;
+          background: #D0E0F1;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
           transform-origin: center center;
           transition: transform 420ms cubic-bezier(.2,.75,.25,1), box-shadow 350ms ease, border-color 350ms ease;
@@ -374,7 +381,7 @@ export default function Home() {
         .learnai-glass-card p { color: #263B55 !important; }
         .learnai-glass-card > div:first-child span { color: #304965 !important; }
         .learnai-glass-card:hover {
-          background: #CADCF1 !important;
+          background: #D0E0F1 !important;
           border-color: rgba(35, 70, 115, 0.16) !important;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
         }
@@ -385,7 +392,7 @@ export default function Home() {
         .learnai-card-5 { top: 0; left: 68%; z-index: 5; transform: rotate(-3deg); }
         .learnai-glass-card:hover {
           z-index: 20;
-          background: #CADCF1 !important;
+          background: #D0E0F1 !important;
           border-color: rgba(35, 70, 115, 0.16) !important;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
         }
@@ -776,29 +783,52 @@ export default function Home() {
         </div>
       </section>
 
-    
-
-      
+  
 
       {/* FOOTER */}
-      <footer className="border-t border-white/[0.08] bg-[#05070D] px-5 py-6 sm:px-10 lg:px-16">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <a href="#" className="text-lg font-bold text-[#F2F5FC]">
-            Learn<span className="text-[#4388FF]">AI</span>
-          </a>
+      <footer className="learnai-frame relative isolate overflow-hidden border-t border-white/20 px-5 pb-7 pt-10 text-white sm:px-10 sm:pt-12 lg:px-16">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <div className="learnai-grid absolute inset-0 opacity-50" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_bottom,transparent,rgba(225,248,255,.3))]" />
+        </div>
 
-          <p className="text-xs text-[#8995A9]">
-            Learn with intention. Grow with confidence.
-          </p>
-
-          <div className="flex gap-5 text-xs text-[#A0AABC]">
-            <a href="/login" className="transition hover:text-[#79C8FF]">
-              Log in
+        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:gap-8">
+          <div className="max-w-md">
+            <a href="#" aria-label="LearnAI home" className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/70 text-xs">✳</span>
+              Learn<span className="-ml-2 text-blue-300">AI</span>
             </a>
-            <a href="/register" className="transition hover:text-[#79C8FF]">
-              Sign up
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/75">
+              Smart learning tools, personalized courses, and AI-powered practice to help you learn with confidence.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-4 text-xs text-white/80">
+              <a href={contactDetails.github} target="_blank" rel="noreferrer" className="transition hover:text-white hover:underline">GitHub ↗</a>
+              <a href={contactDetails.linkedin} target="_blank" rel="noreferrer" className="transition hover:text-white hover:underline">LinkedIn ↗</a>
+            </div>
+            <a href={`tel:${contactDetails.phone.replace(/[^+\d]/g, "")}`} className="mt-3 inline-flex text-xs text-white/80 transition hover:text-white">
+              Call: {contactDetails.phone}
             </a>
           </div>
+
+          <div className="flex items-start md:ml-auto md:w-full md:max-w-md md:justify-end">
+            <a
+              href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactDetails.email)}&su=${encodeURIComponent("Hello from your LearnAI website")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-[#62AAEF] px-6 py-3 text-sm font-semibold text-[#06377D] shadow-lg transition hover:bg-[#000000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              Email me <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-white/20 pt-4 text-[11px] text-white/65 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} LearnAI. All rights reserved.</p>
+          <p>Learn with intention. Grow with confidence.</p>
+        </div>
+
+        <div aria-hidden="true" className="pointer-events-none mt-2 select-none overflow-hidden text-center text-[clamp(4rem,18.5vw,17rem)] font-semibold leading-[0.78] tracking-[-0.075em] text-white/[0.96]">
+          <span className="text-white">LEARN</span><span className="text-blue-300">AI</span>
         </div>
       </footer>
     </main>
