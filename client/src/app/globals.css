@@ -931,3 +931,827 @@ a {
     padding-top: 78px !important;
   }
 }
+
+
+/* Evenly distribute content throughout the full viewport */
+.courses-section {
+  height: 100vh !important;
+  height: 100svh !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center !important;
+  padding: 40px 0 !important;
+  overflow: hidden;
+}
+
+.courses-container {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.courses-header {
+  flex-shrink: 0;
+  margin: 0 !important;
+  padding: 0 5%;
+}
+
+.courses-grid {
+  flex: 0 1 auto;
+  min-height: 0;
+  margin: 0 !important;
+  padding: 112px 10% 20px !important;
+  box-sizing: border-box;
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+  .courses-section {
+    padding: 24px 0 !important;
+  }
+
+  .courses-grid {
+    padding: 96px 7% 16px !important;
+  }
+}
+
+
+/* Hanging card animation */
+.course-card {
+  transform-origin: 50% -105px;
+  will-change: transform;
+}
+
+.course-card-strap {
+  transform-origin: 50% 0%;
+}
+
+/* Swing while scrolling */
+.courses-section.is-scrolling .course-card {
+  animation: hanging-swing 900ms ease-in-out infinite alternate;
+}
+
+.courses-section.is-scrolling .course-card:nth-child(even) {
+  animation-delay: -450ms;
+}
+
+@keyframes hanging-swing {
+  0% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courses-section.is-scrolling .course-card {
+    animation: none;
+  }
+}
+
+
+/* Hanging swing — scroll-triggered */
+.courses-section .course-card {
+  transform-origin: 50% -100px;
+  animation: none;
+}
+
+.courses-section .course-card-strap {
+  transform-origin: 50% 0;
+}
+
+.courses-section.is-scrolling .course-card {
+  animation: course-swing 700ms ease-in-out infinite alternate;
+}
+
+.courses-section.is-scrolling .course-card:nth-child(even) {
+  animation-delay: -350ms;
+}
+
+@keyframes course-swing {
+  from {
+    rotate: -2deg;
+  }
+  to {
+    rotate: 2deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courses-section.is-scrolling .course-card {
+    animation: none;
+  }
+}
+
+
+/* Smooth hanging motion */
+.courses-section .course-card {
+  transform-origin: 50% -100px;
+  will-change: transform;
+}
+
+/* Swing while scrolling in either direction */
+.courses-section.is-scrolling .course-card {
+  animation: course-swing 700ms ease-in-out infinite alternate;
+  transition: none;
+}
+
+.courses-section.is-scrolling .course-card:nth-child(even) {
+  animation-delay: -350ms;
+}
+
+@keyframes course-swing {
+  0% {
+    rotate: -2deg;
+  }
+
+  100% {
+    rotate: 2deg;
+  }
+}
+
+/* Gradually settle when scrolling stops */
+.courses-section.is-settling .course-card {
+  animation: course-settle 900ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes course-settle {
+  from {
+    rotate: 1.5deg;
+  }
+
+  to {
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courses-section .course-card {
+    animation: none !important;
+    rotate: 0deg !important;
+  }
+}
+
+
+
+
+.courses-section .course-card {
+  transform-origin: 50% -100px;
+  will-change: transform, rotate;
+}
+
+.courses-section.is-scrolling .course-card {
+  animation: course-swing 700ms ease-in-out infinite alternate;
+}
+
+.courses-section.is-scrolling .course-card:nth-child(even) {
+  animation-delay: -350ms;
+}
+
+.courses-section.is-settling .course-card {
+  animation: course-settle 1200ms ease-out forwards;
+}
+
+@keyframes course-swing {
+  from { rotate: -2deg; }
+  to { rotate: 2deg; }
+}
+
+@keyframes course-settle {
+  from { rotate: 1.5deg; }
+  to { rotate: 0deg; }
+}
+
+
+.courses-section .course-card {
+  transform-origin: 50% -100px;
+  will-change: rotate;
+}
+
+.courses-section.is-scrolling .course-card {
+  animation: course-swing 650ms ease-in-out infinite alternate;
+}
+
+.courses-section.is-scrolling .course-card:nth-child(even) {
+  animation-delay: -325ms;
+}
+
+.courses-section.is-settling .course-card {
+  animation: course-settle 1200ms ease-out forwards;
+}
+
+@keyframes course-swing {
+  from { rotate: -2deg; }
+  to { rotate: 2deg; }
+}
+
+@keyframes course-settle {
+  from { rotate: 1.5deg; }
+  to { rotate: 0deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courses-section .course-card {
+    animation: none !important;
+    rotate: 0deg !important;
+  }
+}
+
+
+
+
+
+/* ============================================
+   LEARNAI GLASS FEATURE CARDS
+   ============================================ */
+
+.learnai-glass-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 100px 24px 120px;
+  background:
+    radial-gradient(ellipse at 75% 55%, rgba(65, 44, 148, .13), transparent 45%),
+    radial-gradient(ellipse at 20% 85%, rgba(38, 72, 150, .1), transparent 42%),
+    #020305;
+  color: #f7f8ff;
+}
+
+.learnai-glass-section,
+.learnai-glass-section * {
+  box-sizing: border-box;
+}
+
+.learnai-glass-container {
+  display: grid;
+  grid-template-columns: .72fr 1.28fr;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* Section heading */
+
+.learnai-glass-heading {
+  position: relative;
+  z-index: 10;
+  max-width: 430px;
+}
+
+.learnai-glass-eyebrow {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: #a995ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .2em;
+}
+
+.learnai-glass-heading h2 {
+  margin: 0;
+  color: #f7f8ff;
+  font-size: clamp(42px, 5vw, 70px);
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+
+.learnai-glass-heading h2 span {
+  display: block;
+  background: linear-gradient(100deg, #d8ccff, #9373ff 55%, #5f8eff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.learnai-glass-heading p {
+  max-width: 360px;
+  margin: 23px 0 0;
+  color: #aaa8bb;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+/* Perspective stage */
+
+.learnai-glass-stage {
+  position: relative;
+  width: 100%;
+  height: 570px;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+/* Glass cards */
+
+.learnai-glass-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: clamp(180px, 19vw, 255px);
+  min-height: 260px;
+  overflow: hidden;
+  padding: 25px 23px 22px;
+  border: 1px solid rgba(203, 190, 255, .3);
+  border-radius: 17px;
+  background:
+    linear-gradient(135deg, rgba(161, 129, 255, .57), rgba(99, 66, 205, .34) 52%, rgba(35, 32, 78, .65)),
+    rgba(96, 75, 180, .23);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    inset 0 -25px 50px rgba(31, 22, 93, .18),
+    0 18px 45px rgba(0, 0, 0, .3);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transform-style: preserve-3d;
+  transition:
+    transform .45s cubic-bezier(.2, .75, .25, 1),
+    border-color .35s ease,
+    box-shadow .35s ease,
+    background .35s ease;
+  will-change: transform;
+}
+
+/* Moving glass reflection */
+
+.learnai-glass-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -40%;
+  left: -70%;
+  width: 65%;
+  height: 180%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, .13),
+    transparent
+  );
+  transform: rotate(20deg);
+  transition: left .65s ease;
+  pointer-events: none;
+}
+
+.learnai-glass-card:hover::before {
+  left: 130%;
+}
+
+.learnai-glass-card:hover {
+  z-index: 20;
+  border-color: rgba(220, 210, 255, .8);
+  background:
+    linear-gradient(135deg, rgba(171, 145, 255, .72), rgba(109, 79, 221, .5) 55%, rgba(41, 39, 92, .76)),
+    rgba(100, 75, 185, .35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    0 25px 65px rgba(0, 0, 0, .42),
+    0 0 38px rgba(130, 95, 255, .2);
+  transform: translate3d(0, -22px, 90px) scale(1.045) !important;
+}
+
+/* Diagonal overlapping layout */
+
+.glass-card-1 {
+  top: 285px;
+  left: 0;
+  z-index: 2;
+  transform: rotate(-5deg);
+}
+
+.glass-card-2 {
+  top: 200px;
+  left: 17%;
+  z-index: 3;
+  transform: rotate(3deg);
+}
+
+.glass-card-3 {
+  top: 105px;
+  left: 35%;
+  z-index: 4;
+  transform: rotate(-3deg);
+  background:
+    linear-gradient(135deg, rgba(166, 134, 255, .75), rgba(105, 72, 217, .53) 58%, rgba(45, 38, 105, .78));
+}
+
+.glass-card-4 {
+  top: 35px;
+  left: 54%;
+  z-index: 3;
+  transform: rotate(4deg);
+}
+
+.glass-card-5 {
+  top: 0;
+  left: 72%;
+  z-index: 2;
+  transform: rotate(-3deg) scale(.94);
+}
+
+/* Icon container */
+
+.learnai-glass-icon-wrap {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(174, 157, 255, .24);
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    rgba(91, 196, 255, .12),
+    rgba(145, 103, 255, .16)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+  transform: translateY(-50%);
+  transition:
+    border-color .3s ease,
+    background .3s ease,
+    box-shadow .3s ease,
+    transform .3s ease;
+}
+
+.learnai-glass-icon {
+  display: block;
+  width: 39px;
+  height: 39px;
+  color: #D8D1FF;
+  overflow: visible;
+  filter: drop-shadow(0 0 7px rgba(85, 215, 255, .12));
+  transition:
+    color .3s ease,
+    filter .3s ease,
+    transform .3s ease;
+}
+
+.learnai-glass-card:hover .learnai-glass-icon-wrap {
+  border-color: rgba(85, 215, 255, .55);
+  background: linear-gradient(
+    145deg,
+    rgba(85, 215, 255, .2),
+    rgba(145, 103, 255, .25)
+  );
+  box-shadow:
+    0 0 24px rgba(85, 215, 255, .1),
+    inset 0 1px 0 rgba(255, 255, 255, .2);
+  transform: translateY(calc(-50% - 3px));
+}
+
+.learnai-glass-card:hover .learnai-glass-icon {
+  color: #fff;
+  filter: drop-shadow(0 0 9px rgba(85, 215, 255, .5));
+  transform: scale(1.07);
+}
+
+/* Card labels and copy */
+
+.learnai-glass-label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: calc(100% - 65px);
+  margin-bottom: 13px;
+  color: rgba(239, 232, 255, .9);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  line-height: 1.5;
+}
+
+.learnai-glass-card h3 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(23px, 2vw, 30px);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  text-shadow: 0 2px 14px rgba(30, 20, 80, .16);
+}
+
+.learnai-glass-card p {
+  position: relative;
+  z-index: 1;
+  max-width: 185px;
+  margin: 15px 0 38px;
+  color: rgba(246, 242, 255, .8);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.learnai-glass-index {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  z-index: 1;
+  color: rgba(239, 234, 255, .92);
+  font-size: 40px;
+  font-weight: 300;
+  letter-spacing: -.06em;
+}
+
+/* Tablet layout */
+
+@media (max-width: 1050px) {
+  .learnai-glass-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .learnai-glass-heading {
+    max-width: 620px;
+  }
+
+  .learnai-glass-heading h2 {
+    font-size: clamp(40px, 6vw, 58px);
+  }
+
+  .learnai-glass-stage {
+    max-width: 800px;
+    height: 500px;
+    margin: 0 auto;
+  }
+
+  .learnai-glass-card {
+    width: clamp(155px, 22vw, 220px);
+    min-height: 240px;
+    padding: 20px 17px;
+  }
+
+  .glass-card-1 { top: 230px; left: 0; }
+  .glass-card-2 { top: 160px; left: 17%; }
+  .glass-card-3 { top: 85px; left: 35%; }
+  .glass-card-4 { top: 25px; left: 53%; }
+  .glass-card-5 { top: 0; left: 70%; }
+
+  .learnai-glass-card h3 {
+    font-size: 23px;
+  }
+
+  .learnai-glass-icon-wrap {
+    right: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+  }
+
+  .learnai-glass-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Mobile layout */
+
+@media (max-width: 600px) {
+  .learnai-glass-section {
+    padding: 65px 16px 80px;
+  }
+
+  .learnai-glass-stage {
+    height: 670px;
+    margin-top: 15px;
+  }
+
+  .learnai-glass-card {
+    width: min(61%, 225px);
+    min-height: 205px;
+    padding: 18px 15px;
+    border-radius: 14px;
+  }
+
+  .glass-card-1 { top: 390px; left: 0; }
+  .glass-card-2 { top: 300px; left: 12%; }
+  .glass-card-3 { top: 205px; left: 24%; }
+  .glass-card-4 { top: 105px; left: 36%; }
+  .glass-card-5 { top: 10px; left: 46%; }
+
+  .learnai-glass-card h3 {
+    font-size: 21px;
+  }
+
+  .learnai-glass-card p {
+    max-width: 155px;
+    font-size: 10px;
+  }
+
+  .learnai-glass-index {
+    font-size: 32px;
+  }
+
+  .learnai-glass-icon-wrap {
+    top: 16px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    transform: none;
+  }
+
+  .learnai-glass-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .learnai-glass-card:hover .learnai-glass-icon-wrap {
+    transform: translateY(-2px);
+  }
+
+  .learnai-glass-card:hover .learnai-glass-icon {
+    transform: scale(1.05);
+  }
+
+  .learnai-glass-card:hover {
+    transform: translate3d(0, -10px, 35px) scale(1.025) !important;
+  }
+}
+
+/* Reduced motion accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .learnai-glass-card,
+  .learnai-glass-card::before,
+  .learnai-glass-icon,
+  .learnai-glass-icon-wrap {
+    transition: none;
+  }
+}
+
+
+
+/* LearnAI diagonal card positions and 3D hover lift */
+
+.learnai-card-stage {
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+.learnai-glass-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(159, 129, 255, .58),
+      rgba(95, 66, 195, .37) 52%,
+      rgba(35, 32, 78, .68)
+    );
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.learnai-glass-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -80%;
+  width: 65%;
+  height: 180%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, .13),
+    transparent
+  );
+  transform: rotate(19deg);
+  transition: left .7s ease;
+  pointer-events: none;
+}
+
+.learnai-glass-card:hover::before {
+  left: 130%;
+}
+
+.learnai-card-1 {
+  top: 220px;
+  left: 1%;
+  transform: rotate(-5deg);
+}
+
+.learnai-card-2 {
+  top: 153px;
+  left: 19%;
+  transform: rotate(3deg);
+}
+
+.learnai-card-3 {
+  top: 83px;
+  left: 38%;
+  transform: rotate(-2deg);
+}
+
+.learnai-card-4 {
+  top: 32px;
+  left: 57%;
+  transform: rotate(3deg);
+}
+
+.learnai-card-5 {
+  top: 0;
+  left: 75%;
+  transform: rotate(-4deg) scale(.94);
+}
+
+.learnai-card-1:hover {
+  transform: translate3d(8px, -23px, 100px) rotate(-2deg) scale(1.045);
+}
+
+.learnai-card-2:hover {
+  transform: translate3d(0, -23px, 100px) rotate(1deg) scale(1.045);
+}
+
+.learnai-card-3:hover {
+  transform: translate3d(0, -23px, 100px) rotate(0) scale(1.045);
+}
+
+.learnai-card-4:hover {
+  transform: translate3d(0, -23px, 100px) rotate(1deg) scale(1.045);
+}
+
+.learnai-card-5:hover {
+  transform: translate3d(-8px, -23px, 100px) rotate(-1deg) scale(1.045);
+}
+
+@media (max-width: 1050px) {
+  .learnai-card-1 { top: 205px; left: 0; }
+  .learnai-card-2 { top: 145px; left: 18%; }
+  .learnai-card-3 { top: 83px; left: 36%; }
+  .learnai-card-4 { top: 27px; left: 54%; }
+  .learnai-card-5 { top: 0; left: 72%; }
+
+  .learnai-card-1:hover {
+    transform: translate3d(5px, -17px, 65px) rotate(-2deg) scale(1.035);
+  }
+  .learnai-card-2:hover {
+    transform: translate3d(0, -17px, 65px) rotate(1deg) scale(1.035);
+  }
+  .learnai-card-3:hover {
+    transform: translate3d(0, -17px, 65px) scale(1.035);
+  }
+  .learnai-card-4:hover {
+    transform: translate3d(0, -17px, 65px) rotate(1deg) scale(1.035);
+  }
+  .learnai-card-5:hover {
+    transform: translate3d(-5px, -17px, 65px) rotate(-1deg) scale(1.035);
+  }
+}
+
+@media (max-width: 650px) {
+  .learnai-card-1 { top: 380px; left: 0; }
+  .learnai-card-2 { top: 300px; left: 10%; }
+  .learnai-card-3 { top: 218px; left: 20%; }
+  .learnai-card-4 { top: 134px; left: 30%; }
+  .learnai-card-5 { top: 50px; left: 39%; }
+
+  .learnai-card-1:hover {
+    transform: translate3d(3px, -10px, 30px) rotate(-3deg) scale(1.02);
+  }
+  .learnai-card-2:hover {
+    transform: translate3d(0, -10px, 30px) rotate(2deg) scale(1.02);
+  }
+  .learnai-card-3:hover {
+    transform: translate3d(0, -10px, 30px) rotate(-1deg) scale(1.02);
+  }
+  .learnai-card-4:hover {
+    transform: translate3d(0, -10px, 30px) rotate(2deg) scale(1.02);
+  }
+  .learnai-card-5:hover {
+    transform: translate3d(-3px, -10px, 30px) rotate(-2deg) scale(1.02);
+  }
+}
+
+@media (max-width: 370px) {
+  .learnai-card-1 { top: 355px; left: 0; }
+  .learnai-card-2 { top: 285px; left: 9%; }
+  .learnai-card-3 { top: 215px; left: 18%; }
+  .learnai-card-4 { top: 145px; left: 27%; }
+  .learnai-card-5 { top: 75px; left: 36%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learnai-glass-card,
+  .learnai-glass-card::before {
+    transition: none;
+  }
+}
+
+
+.learnai-glass-card,
+.learnai-glass-card:hover,
+.learnai-glass-card:focus,
+.learnai-glass-card:active {
+  background: #CADCF1 !important;
+}

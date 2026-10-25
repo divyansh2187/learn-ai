@@ -48,6 +48,54 @@ type PublicCourse = {
   }[];
 };
 
+const featureCards = [
+  {
+    number: "01",
+    label: "CREATE",
+    title: "AI Course Builder",
+    description: "Turn your ideas into structured, personalized courses with AI in seconds.",
+    icon: <><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="8.5" /></>,
+    className: "learnai-card-1",
+    accent: "from-violet-300 to-fuchsia-400",
+  },
+  {
+    number: "02",
+    label: "EXPLORE",
+    title: "YouTube Learning",
+    description: "Transform videos into organized lessons, notes, and useful takeaways.",
+    icon: <><rect x="3" y="5" width="18" height="14" rx="4" /><path d="m10 9 5 3-5 3V9Z" /></>,
+    className: "learnai-card-2",
+    accent: "from-cyan-300 to-blue-400",
+  },
+  {
+    number: "03",
+    label: "PRACTICE",
+    title: "Smart Quizzes",
+    description: "Test your understanding with AI-generated questions and instant feedback.",
+    icon: <><rect x="5" y="3" width="14" height="18" rx="3" /><path d="m8 9 1.5 1.5L12 8M14 10h2M8 15h2M14 15h2" /></>,
+    className: "learnai-card-3",
+    accent: "from-violet-300 to-indigo-400",
+  },
+  {
+    number: "04",
+    label: "ANALYZE",
+    title: "Progress Tracking",
+    description: "See your learning progress, completed lessons, and growth at a glance.",
+    icon: <><path d="M4 19V5M4 19h17" /><rect x="7" y="12" width="3" height="5" rx="1" /><rect x="12" y="8" width="3" height="9" rx="1" /><rect x="17" y="4" width="3" height="13" rx="1" /></>,
+    className: "learnai-card-4",
+    accent: "from-sky-300 to-cyan-400",
+  },
+  {
+    number: "05",
+    label: "REMEMBER",
+    title: "AI Flashcards",
+    description: "Remember more with focused flashcards and repeatable revision sessions.",
+    icon: <><rect x="6" y="4" width="14" height="16" rx="2.5" /><path d="M9 8h8M9 12h5M4 7v13a2 2 0 0 0 2 2h11" /></>,
+    className: "learnai-card-5",
+    accent: "from-fuchsia-300 to-violet-400",
+  },
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [courseTopic, setCourseTopic] = useState("");
@@ -85,7 +133,7 @@ export default function Home() {
     if (!track) return;
 
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
     if (reduceMotion) return;
 
@@ -110,8 +158,13 @@ export default function Home() {
       frame = window.requestAnimationFrame(animate);
     };
 
-    const pause = () => { paused = true; };
-    const resume = () => { paused = false; previousTime = 0; };
+    const pause = () => {
+      paused = true;
+    };
+    const resume = () => {
+      paused = false;
+      previousTime = 0;
+    };
 
     track.addEventListener("mouseenter", pause);
     track.addEventListener("mouseleave", resume);
@@ -133,6 +186,49 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const track = coursesTrackRef.current;
+    const section = track?.closest(".courses-section");
+
+    if (!track || !section) return;
+
+    let stopTimer: ReturnType<typeof setTimeout>;
+    let settleTimer: ReturnType<typeof setTimeout>;
+
+    const triggerSwing = () => {
+      clearTimeout(stopTimer);
+      clearTimeout(settleTimer);
+
+      section.classList.remove("is-settling");
+      section.classList.add("is-scrolling");
+
+      stopTimer = setTimeout(() => {
+        section.classList.remove("is-scrolling");
+        section.classList.add("is-settling");
+
+        settleTimer = setTimeout(() => {
+          section.classList.remove("is-settling");
+        }, 1200);
+      }, 180);
+    };
+
+    // Detect horizontal carousel movement, including auto-scroll.
+    track.addEventListener("scroll", triggerSwing, { passive: true });
+
+    // Detect vertical page scrolling.
+    window.addEventListener("scroll", triggerSwing, { passive: true });
+
+    return () => {
+      track.removeEventListener("scroll", triggerSwing);
+      window.removeEventListener("scroll", triggerSwing);
+
+      clearTimeout(stopTimer);
+      clearTimeout(settleTimer);
+
+      section.classList.remove("is-scrolling", "is-settling");
+    };
+  }, []);
+
   function selectCourse(courseId: string) {
     window.location.href = `/login?courseId=${encodeURIComponent(courseId)}`;
   }
@@ -145,46 +241,205 @@ export default function Home() {
           --sky: #9edfff;
           --muted: #aebbd0;
           background:
-            radial-gradient(ellipse at 16% 0%, rgba(238, 225, 255, .78), transparent 38%),
-            radial-gradient(ellipse at 82% 28%, rgba(67, 150, 255, .92), transparent 48%),
+            radial-gradient(
+              ellipse at 16% 0%,
+              rgba(238, 225, 255, 0.78),
+              transparent 38%
+            ),
+            radial-gradient(
+              ellipse at 82% 28%,
+              rgba(67, 150, 255, 0.92),
+              transparent 48%
+            ),
             linear-gradient(145deg, #b7c9f4 0%, #4b8fe9 45%, #06428e 100%);
         }
         .learnai-frame {
           background:
-            radial-gradient(ellipse at 50% 104%, rgba(230, 250, 255, .98) 0%, rgba(113, 201, 255, .92) 13%, rgba(45, 126, 240, .78) 29%, transparent 54%),
-            radial-gradient(ellipse at 82% 72%, rgba(55, 137, 255, .48), transparent 38%),
-            linear-gradient(to bottom, #020305 0%, #020305 35%, #050a16 55%, #0b1d3c 75%, #8fd9ff 100%);
-          box-shadow: 0 0 0 1px rgba(219, 239, 255, .35), 0 24px 70px rgba(0, 28, 83, .28);
+            radial-gradient(
+              ellipse at 50% 104%,
+              rgba(230, 250, 255, 0.98) 0%,
+              rgba(113, 201, 255, 0.92) 13%,
+              rgba(45, 126, 240, 0.78) 29%,
+              transparent 54%
+            ),
+            radial-gradient(
+              ellipse at 82% 72%,
+              rgba(55, 137, 255, 0.48),
+              transparent 38%
+            ),
+            linear-gradient(
+              to bottom,
+              #020305 0%,
+              #020305 35%,
+              #050a16 55%,
+              #0b1d3c 75%,
+              #8fd9ff 100%
+            );
+          box-shadow:
+            0 0 0 1px rgba(219, 239, 255, 0.35),
+            0 24px 70px rgba(0, 28, 83, 0.28);
         }
         .learnai-grid {
           background-image:
-            linear-gradient(rgba(183, 225, 255, .10) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(183, 225, 255, .10) 1px, transparent 1px);
+            linear-gradient(rgba(183, 225, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(
+              90deg,
+              rgba(183, 225, 255, 0.1) 1px,
+              transparent 1px
+            );
           background-size: 38px 38px;
-          mask-image: linear-gradient(to bottom, transparent, black 18%, black 75%, transparent);
+          mask-image: linear-gradient(
+            to bottom,
+            transparent,
+            black 18%,
+            black 75%,
+            transparent
+          );
         }
         .learnai-reveal {
           opacity: 0;
           transform: translateY(12px);
-          animation: learnai-rise-in 700ms cubic-bezier(.2, 0, 0, 1) forwards;
+          animation: learnai-rise-in 700ms cubic-bezier(0.2, 0, 0, 1) forwards;
         }
         .learnai-word {
           display: inline-block;
           opacity: 0;
           transform: translateY(14px);
-          animation: learnai-rise-in 700ms cubic-bezier(.2, 0, 0, 1) forwards;
+          animation: learnai-rise-in 700ms cubic-bezier(0.2, 0, 0, 1) forwards;
         }
         .learnai-wave {
-          border: 1px solid rgba(10, 73, 148, .3);
-          border-color: rgba(10, 73, 148, .3) transparent transparent transparent;
+          border: 1px solid rgba(10, 73, 148, 0.3);
+          border-color: rgba(10, 73, 148, 0.3) transparent transparent
+            transparent;
           border-radius: 50%;
           transform: rotate(-3deg);
         }
         @keyframes learnai-rise-in {
-          to { opacity: 1; transform: translateY(0); }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .learnai-card-stage {
+          position: relative;
+          width: 100%;
+          height: clamp(360px, 54vh, 470px);
+          max-width: 1120px;
+          margin-inline: auto;
+          perspective: 1400px;
+          isolation: isolate;
+        }
+        .learnai-glass-card {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: flex;
+          flex-direction: column;
+          width: clamp(180px, 19vw, 245px);
+          height: clamp(245px, 36vh, 300px);
+          min-width: 0;
+          padding: clamp(1rem, 1.5vw, 1.4rem);
+          overflow: hidden;
+          overflow-wrap: anywhere;
+          border: 1px solid rgba(35, 70, 115, 0.16);
+          border-radius: 17px;
+          color: #111827;
+          background: #CADCF1;
+          box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
+          transform-origin: center center;
+          transition: transform 420ms cubic-bezier(.2,.75,.25,1), box-shadow 350ms ease, border-color 350ms ease;
+        }
+        .learnai-feature-icon-wrap {
+          position: relative;
+          background: #B6CDE9 !important;
+          color: #102C50;
+          border: 1px solid rgba(25, 54, 91, .12);
+        }
+        .learnai-feature-icon svg {
+          display: block;
+          width: 100%;
+          height: 100%;
+          stroke: currentColor;
+          stroke-width: 1.7;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .learnai-feature-title {
+          background: linear-gradient(100deg, #101827 0%, #2458A6 48%, #3988D8 78%, #173B73 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          -webkit-text-fill-color: transparent;
+        }
+        .learnai-glass-card p { color: #263B55 !important; }
+        .learnai-glass-card > div:first-child span { color: #304965 !important; }
+        .learnai-glass-card:hover {
+          background: #CADCF1 !important;
+          border-color: rgba(35, 70, 115, 0.16) !important;
+          box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
+        }
+        .learnai-card-1 { top: 34%; left: 1%; z-index: 1; transform: rotate(-7deg); }
+        .learnai-card-2 { top: 22%; left: 17%; z-index: 2; transform: rotate(4deg); }
+        .learnai-card-3 { top: 12%; left: 34%; z-index: 3; transform: rotate(-3deg); }
+        .learnai-card-4 { top: 4%; left: 51%; z-index: 4; transform: rotate(3deg); }
+        .learnai-card-5 { top: 0; left: 68%; z-index: 5; transform: rotate(-3deg); }
+        .learnai-glass-card:hover {
+          z-index: 20;
+          background: #CADCF1 !important;
+          border-color: rgba(35, 70, 115, 0.16) !important;
+          box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
+        }
+        .learnai-card-1:hover { transform: translateY(-16px) rotate(-3deg) scale(1.035); }
+        .learnai-card-2:hover { transform: translateY(-16px) rotate(1deg) scale(1.035); }
+        .learnai-card-3:hover { transform: translateY(-16px) rotate(0deg) scale(1.035); }
+        .learnai-card-4:hover { transform: translateY(-16px) rotate(1deg) scale(1.035); }
+        .learnai-card-5:hover { transform: translateY(-16px) rotate(-1deg) scale(1.035); }
+        @media (max-width: 1024px) {
+          .learnai-card-stage { height: 470px; }
+          .learnai-glass-card { width: clamp(170px, 23vw, 220px); height: 260px; }
+          .learnai-card-1 { top: 36%; left: 0%; }
+          .learnai-card-2 { top: 25%; left: 14%; }
+          .learnai-card-3 { top: 14%; left: 29%; }
+          .learnai-card-4 { top: 5%; left: 44%; }
+          .learnai-card-5 { top: 0; left: 59%; }
+        }
+        @media (max-width: 640px) {
+          #features { min-height: 100svh; padding-top: 2.5rem; padding-bottom: 2.5rem; }
+          #features .learnai-features-header { margin-bottom: 1.25rem; }
+          .learnai-card-stage { height: 660px; max-width: 430px; }
+          .learnai-glass-card { width: min(225px, 64vw); height: 245px; padding: 1rem; }
+          .learnai-card-1 { top: 57%; left: 0%; transform: rotate(-6deg); }
+          .learnai-card-2 { top: 43%; left: 7%; transform: rotate(4deg); }
+          .learnai-card-3 { top: 29%; left: 14%; transform: rotate(-3deg); }
+          .learnai-card-4 { top: 15%; left: 21%; transform: rotate(3deg); }
+          .learnai-card-5 { top: 1%; left: 28%; transform: rotate(-3deg); }
+          .learnai-card-1:hover { transform: translateY(-8px) rotate(-3deg) scale(1.02); }
+          .learnai-card-2:hover { transform: translateY(-8px) rotate(1deg) scale(1.02); }
+          .learnai-card-3:hover { transform: translateY(-8px) rotate(0deg) scale(1.02); }
+          .learnai-card-4:hover { transform: translateY(-8px) rotate(1deg) scale(1.02); }
+          .learnai-card-5:hover { transform: translateY(-8px) rotate(-1deg) scale(1.02); }
+        }
+        @media (max-width: 390px) {
+          .learnai-card-stage { height: 620px; }
+          .learnai-glass-card { width: 66vw; height: 225px; padding: .85rem; }
+          .learnai-card-1 { top: 60%; left: -2%; }
+          .learnai-card-2 { top: 47%; left: 5%; }
+          .learnai-card-3 { top: 34%; left: 12%; }
+          .learnai-card-4 { top: 21%; left: 19%; }
+          .learnai-card-5 { top: 8%; left: 26%; }
+        }
+        @media (min-width: 1025px) and (max-height: 760px) {
+          #features { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+          #features .learnai-features-header { margin-bottom: .5rem; }
+          #features .learnai-card-stage { height: clamp(340px, 48vh, 410px); }
+          #features .learnai-glass-card { height: clamp(220px, 31vh, 255px); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .learnai-reveal, .learnai-word {
+          .learnai-glass-card, .learnai-glass-card::before { transition: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .learnai-reveal,
+          .learnai-word {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;
@@ -192,8 +447,14 @@ export default function Home() {
         }
       `}</style>
       <div className="relative z-10 min-h-screen w-full p-0">
-        <section aria-labelledby="hero-title" className="learnai-frame relative isolate min-h-screen w-full max-w-none overflow-hidden rounded-none border-0 px-5 pb-8 pt-5 sm:px-9 sm:pb-10 sm:pt-6 lg:px-12">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <section
+          aria-labelledby="hero-title"
+          className="learnai-frame relative isolate min-h-screen w-full max-w-none overflow-hidden rounded-none border-0 px-5 pb-8 pt-5 sm:px-9 sm:pb-10 sm:pt-6 lg:px-12"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10"
+          >
             <div className="learnai-grid absolute inset-0 opacity-70" />
             <div className="absolute inset-x-0 bottom-0 h-[48%] bg-[linear-gradient(to_bottom,transparent,rgba(52,143,255,.2)_28%,rgba(145,222,255,.45)_76%,rgba(224,249,255,.75))]" />
             <div className="learnai-wave absolute -bottom-14 left-[-8%] h-28 w-[116%]" />
@@ -201,59 +462,160 @@ export default function Home() {
             <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_bottom,transparent,rgba(225,248,255,.58))]" />
           </div>
 
-          <header className="learnai-reveal relative z-20 flex items-center justify-between" style={{ animationDelay: "50ms" }}>
-            <a href="/" aria-label="LearnAI home" className="flex items-center gap-2.5">
+          <header
+            className="learnai-reveal relative z-20 flex items-center justify-between"
+            style={{ animationDelay: "50ms" }}
+          >
+            <a
+              href="/"
+              aria-label="LearnAI home"
+              className="flex items-center gap-2.5"
+            >
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/60 text-[10px] text-white sm:h-8 sm:w-8">
-                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                  <circle cx="12" cy="12" r="7.5" stroke="currentColor" strokeWidth="1.5" />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="7.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
                   <circle cx="12" cy="12" r="2.5" fill="currentColor" />
                 </svg>
               </span>
-              <span className="text-sm font-medium tracking-[-0.04em] sm:text-base">Learn<span className="text-[#8BD6FF]">AI</span></span>
+              <span className="text-sm font-medium tracking-[-0.04em] sm:text-base">
+                Learn<span className="text-[#8BD6FF]">AI</span>
+              </span>
             </a>
 
-            <nav aria-label="Main navigation" className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 text-[10px] text-white/75 sm:flex md:gap-8 md:text-xs">
-              <a href="#features" className="transition hover:text-white">Features</a>
-              <a href="#courses" className="transition hover:text-white">Courses</a>
-              <a href="#how-it-works" className="whitespace-nowrap transition hover:text-white">How it works</a>
-              <a href="#preview" className="transition hover:text-white">Preview</a>
+            <nav
+              aria-label="Main navigation"
+              className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 text-[10px] text-white/75 sm:flex md:gap-8 md:text-xs"
+            >
+              <a href="#features" className="transition hover:text-white">
+                Features
+              </a>
+              <a href="#courses" className="transition hover:text-white">
+                Courses
+              </a>
+              <a
+                href="#how-it-works"
+                className="whitespace-nowrap transition hover:text-white"
+              >
+                How it works
+              </a>
+              <a href="#preview" className="transition hover:text-white">
+                Preview
+              </a>
             </nav>
 
             <div className="flex items-center gap-3 sm:gap-5">
-              <a href="/login" className="text-[10px] text-white/80 transition hover:text-white sm:text-xs">Log in</a>
-              <a href="/register" className="hidden rounded-full border border-white/25 bg-white/10 px-3 py-2 text-[10px] text-white backdrop-blur transition hover:bg-white/20 sm:inline-flex sm:text-xs">Get started ↗</a>
-              <button type="button" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((open) => !open)} className="rounded-full border border-white/25 px-3 py-1.5 text-[10px] text-white sm:hidden">
+              <a
+                href="/login"
+                className="text-[10px] text-white/80 transition hover:text-white sm:text-xs"
+              >
+                Log in
+              </a>
+              <a
+                href="/register"
+                className="hidden rounded-full border border-white/25 bg-white/10 px-3 py-2 text-[10px] text-white backdrop-blur transition hover:bg-white/20 sm:inline-flex sm:text-xs"
+              >
+                Get started ↗
+              </a>
+              <button
+                type="button"
+                aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-navigation"
+                onClick={() => setMenuOpen((open) => !open)}
+                className="rounded-full border border-white/25 px-3 py-1.5 text-[10px] text-white sm:hidden"
+              >
                 {menuOpen ? "Close" : "Menu"}
               </button>
             </div>
             {menuOpen && (
-              <nav id="mobile-navigation" aria-label="Mobile navigation" className="absolute right-0 top-11 z-50 flex w-44 flex-col gap-1 rounded-xl border border-white/15 bg-[#080D18]/95 p-2 text-xs shadow-2xl backdrop-blur-xl sm:hidden">
-                <a href="#features" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">Features</a>
-                <a href="#courses" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">Courses</a>
-                <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 hover:bg-white/10">How it works</a>
-                <a href="/register" className="rounded-lg px-3 py-2 hover:bg-white/10">Get started</a>
+              <nav
+                id="mobile-navigation"
+                aria-label="Mobile navigation"
+                className="absolute right-0 top-11 z-50 flex w-44 flex-col gap-1 rounded-xl border border-white/15 bg-[#080D18]/95 p-2 text-xs shadow-2xl backdrop-blur-xl sm:hidden"
+              >
+                <a
+                  href="#features"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg px-3 py-2 hover:bg-white/10"
+                >
+                  Features
+                </a>
+                <a
+                  href="#courses"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg px-3 py-2 hover:bg-white/10"
+                >
+                  Courses
+                </a>
+                <a
+                  href="#how-it-works"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg px-3 py-2 hover:bg-white/10"
+                >
+                  How it works
+                </a>
+                <a
+                  href="/register"
+                  className="rounded-lg px-3 py-2 hover:bg-white/10"
+                >
+                  Get started
+                </a>
               </nav>
             )}
           </header>
 
           <div className="relative z-10 mx-auto flex max-w-[720px] flex-col items-center pb-5 pt-12 text-center sm:pt-16 lg:pt-20">
-            <p className="learnai-reveal text-[9px] font-medium tracking-[.2em] text-[#B8DFFF] sm:text-[10px]" style={{ animationDelay: "120ms" }}>
+            <p
+              className="learnai-reveal text-[9px] font-medium tracking-[.2em] text-[#B8DFFF] sm:text-[10px]"
+              style={{ animationDelay: "120ms" }}
+            >
               YOUR PERSONAL AI LEARNING SPACE
             </p>
-            <h1 id="hero-title" className="learnai-reveal mt-4 max-w-[700px] text-3xl font-medium leading-[1.06] tracking-[-.055em] text-white sm:mt-5 sm:text-4xl lg:text-[clamp(2.6rem,4vw,3.5rem)]" style={{ animationDelay: "220ms" }}>
-              Learn Anything. <span className="bg-gradient-to-r from-white via-[#D8F2FF] to-[#83C8FF] bg-clip-text text-transparent">Your Way.</span>
+            <h1
+              id="hero-title"
+              className="learnai-reveal mt-4 max-w-[700px] text-3xl font-medium leading-[1.06] tracking-[-.055em] text-white sm:mt-5 sm:text-4xl lg:text-[clamp(2.6rem,4vw,3.5rem)]"
+              style={{ animationDelay: "220ms" }}
+            >
+              Learn Anything.{" "}
+              <span className="bg-gradient-to-r from-white via-[#D8F2FF] to-[#83C8FF] bg-clip-text text-transparent">
+                Your Way.
+              </span>
             </h1>
-            <p className="learnai-reveal mt-3 max-w-[480px] text-[10px] leading-[1.7] text-white/65 sm:mt-4 sm:text-xs" style={{ animationDelay: "300ms" }}>
-              Turn your ideas into a personalized learning path with AI-powered courses,
-              <br className="hidden sm:block" /> curated video lessons, and smart practice.
+            <p
+              className="learnai-reveal mt-3 max-w-[480px] text-[10px] leading-[1.7] text-white/65 sm:mt-4 sm:text-xs"
+              style={{ animationDelay: "300ms" }}
+            >
+              Turn your ideas into a personalized learning path with AI-powered
+              courses,
+              <br className="hidden sm:block" /> curated video lessons, and
+              smart practice.
             </p>
 
-            <form onSubmit={(event) => {
-              event.preventDefault();
-              const topic = courseTopic.trim();
-              window.location.href = topic ? `/register?topic=${encodeURIComponent(topic)}` : "/register";
-            }} className="learnai-reveal mt-6 flex min-h-[108px] w-full max-w-[490px] flex-col justify-between rounded-[18px] border border-white/55 bg-[rgba(238,247,255,.86)] p-3 text-left shadow-[0_18px_45px_rgba(0,30,88,.18)] backdrop-blur-xl sm:mt-7 sm:min-h-[132px] sm:rounded-[22px] sm:p-4" style={{ animationDelay: "390ms" }}>
-              <label htmlFor="course-topic" className="sr-only">What do you want to learn?</label>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                const topic = courseTopic.trim();
+                window.location.href = topic
+                  ? `/register?topic=${encodeURIComponent(topic)}`
+                  : "/register";
+              }}
+              className="learnai-reveal mt-6 flex min-h-[108px] w-full max-w-[490px] flex-col justify-between rounded-[18px] border border-white/55 bg-[rgba(238,247,255,.86)] p-3 text-left shadow-[0_18px_45px_rgba(0,30,88,.18)] backdrop-blur-xl sm:mt-7 sm:min-h-[132px] sm:rounded-[22px] sm:p-4"
+              style={{ animationDelay: "390ms" }}
+            >
+              <label htmlFor="course-topic" className="sr-only">
+                What do you want to learn?
+              </label>
               <input
                 id="course-topic"
                 value={courseTopic}
@@ -265,18 +627,29 @@ export default function Home() {
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1.5">
                   {["AI", "Coding", "Design", "Business"].map((topic) => (
-                    <button key={topic} type="button" onClick={() => setCourseTopic(topic)} className={`rounded-full border px-2.5 py-1.5 text-[8px] transition sm:px-3 sm:text-[9px] ${courseTopic === topic ? "border-[#4388FF]/50 bg-[#D6EAFF] text-[#123E78]" : "border-white/80 bg-white/35 text-[#64748B] hover:bg-white/70"}`}>
+                    <button
+                      key={topic}
+                      type="button"
+                      onClick={() => setCourseTopic(topic)}
+                      className={`rounded-full border px-2.5 py-1.5 text-[8px] transition sm:px-3 sm:text-[9px] ${courseTopic === topic ? "border-[#4388FF]/50 bg-[#D6EAFF] text-[#123E78]" : "border-white/80 bg-white/35 text-[#64748B] hover:bg-white/70"}`}
+                    >
                       {topic}
                     </button>
                   ))}
                 </div>
-                <button type="submit" className="rounded-full bg-[#05070D] px-4 py-2 text-[9px] font-medium text-white transition hover:bg-[#142744] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4388FF] sm:px-5 sm:text-[10px]">
+                <button
+                  type="submit"
+                  className="rounded-full bg-[#05070D] px-4 py-2 text-[9px] font-medium text-white transition hover:bg-[#142744] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4388FF] sm:px-5 sm:text-[10px]"
+                >
                   Generate <span aria-hidden="true">↗</span>
                 </button>
               </div>
             </form>
 
-            <p className="learnai-reveal mt-6 flex items-center gap-2 text-[9px] text-[#173A63]/75 sm:mt-7 sm:text-[10px]" style={{ animationDelay: "470ms" }}>
+            <p
+              className="learnai-reveal mt-6 flex items-center gap-2 text-[9px] text-[#173A63]/75 sm:mt-7 sm:text-[10px]"
+              style={{ animationDelay: "470ms" }}
+            >
               <span className="inline-block h-1 w-1 rounded-full bg-[#173A63]/60" />
               A smarter way to learn, one step at a time.
             </p>
@@ -284,266 +657,150 @@ export default function Home() {
         </section>
       </div>
 
-     <section
-  id="features"
-  className="features-section relative isolate scroll-mt-20 overflow-hidden border-t border-white/[0.08] bg-[#070B14] px-5 py-20 sm:px-10 sm:py-24 lg:px-16 lg:py-28"
->
+      {/* Courses Section */}
+      <section className="courses-section" id="courses">
+        <div className="courses-container">
+          <div className="courses-header">
+            <h2 className="courses-title">Discover Your Next Skill</h2>
 
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute -left-36 top-1/3 h-80 w-80 rounded-full bg-[#4388FF]/[0.06] blur-3xl"
-  />
-
-  <div className="relative mx-auto max-w-7xl">
-    <div className="max-w-2xl">
-      <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.22em] text-[#8BD6FF]">
-        <span className="h-px w-6 bg-[#8BD6FF]/70" />
-        BUILT FOR THE WAY YOU LEARN
-      </p>
-
-      <h2 className="mt-5 text-3xl font-medium leading-[1.1] tracking-[-0.045em] sm:text-5xl">
-        More than a course.
-        <br />
-        <span className="bg-gradient-to-r from-[#A0AABC] via-[#D7E6FA] to-[#8BD6FF] bg-clip-text text-transparent">
-          A better way to grow.
-        </span>
-      </h2>
-
-      <p className="mt-5 max-w-xl text-sm leading-7 text-[#8995A9] sm:text-base">
-        A focused learning space that turns curiosity into momentum, one useful
-        step at a time.
-      </p>
-    </div>
-
-    <div className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3">
-      {features.map((feature, index) => (
-        <article
-          key={feature.number}
-          style={{ animationDelay: `${index * 130}ms` }}
-          className="feature-card group min-h-[270px] rounded-[26px] border border-white/[0.10] p-6 transition duration-300 hover:-translate-y-1.5 hover:border-[#6FAAFF]/35 hover:shadow-[0_22px_60px_rgba(18,83,180,0.13)] sm:p-8"
-        >
-          <div className="flex items-center justify-between">
-            <span className="feature-icon flex h-12 w-12 items-center justify-center rounded-2xl border border-[#6FAAFF]/20 bg-[#4388FF]/[0.11] text-2xl text-[#8BD6FF]">
-              {feature.icon}
-            </span>
-
-            <span className="feature-number font-mono text-xs tracking-[0.12em] text-[#68768D]">
-              {feature.number}
-            </span>
+            <p className="courses-description">
+              Explore courses designed to help you learn faster, build real
+              skills, and achieve more with AI.
+            </p>
           </div>
 
-          <h3 className="mt-8 text-xl font-medium tracking-[-0.025em] text-[#F1F5FC] transition-colors duration-300 group-hover:text-white">
-            {feature.title}
-          </h3>
+          <div className="courses-grid" ref={coursesTrackRef}>
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <button
+                  key={course.id}
+                  type="button"
+                  className="course-card"
+                  onClick={() => {
+                    window.location.href = `/login?courseId=${course.id}`;
+                  }}
+                  aria-label={`Explore ${course.title}`}
+                >
+                  <span className="course-card-strap" aria-hidden="true">
+                    <span className="course-card-strap-band" />
+                    <span className="course-card-clip" />
+                  </span>
+                  <span className="course-card-star" aria-hidden="true">
+                    ✳
+                  </span>
 
-          <p className="mt-3 text-sm leading-7 text-[#A0AABC]">
-            {feature.description}
+                  <div>
+                    <div className="course-card-category">
+                      {course.category || "LEARNING"}
+                    </div>
+
+                    <h3 className="course-card-title">{course.title}</h3>
+                  </div>
+
+                  <div className="course-card-meta">
+                    <span>learnai.</span>
+
+                    <span className="course-card-action">
+                      Explore <span aria-hidden="true">↗</span>
+                    </span>
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="courses-status">
+                No courses available yet. Check back soon!
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+
+      {/* FEATURES SECTION */}
+      <section
+        id="features"
+        className="learnai-frame relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-5 py-10 text-white sm:px-8 lg:px-12"
+      >
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <div className="learnai-grid absolute inset-0 opacity-70" />
+          <div className="absolute inset-x-0 bottom-0 h-[48%] bg-[linear-gradient(to_bottom,transparent,rgba(52,143,255,.2)_28%,rgba(145,222,255,.45)_76%,rgba(224,249,255,.75))]" />
+          <div className="learnai-wave absolute -bottom-14 left-[-8%] h-28 w-[116%]" />
+          <div className="learnai-wave absolute -bottom-20 left-[-6%] h-28 w-[112%] opacity-70" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_bottom,transparent,rgba(225,248,255,.58))]" />
+        </div>
+
+        <div className="relative mx-auto w-full max-w-7xl">
+          <header className="learnai-features-header mb-6 text-left sm:mb-8">
+            <h2 className="text-3xl font-semibold leading-[1.08] tracking-[-0.055em] sm:text-4xl lg:text-5xl">
+              <span className="text-white">Learning, </span>
+              <span className="bg-gradient-to-r from-[#D9D0FF] via-[#56a6ec] to-[#65CFFF] bg-clip-text text-transparent">
+                reimagined.
+              </span>
+            </h2>
+          </header>
+
+          <div className="learnai-card-stage">
+            {featureCards.map((feature) => (
+              <article
+                key={feature.number}
+                className={`learnai-glass-card ${feature.className} flex flex-col`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[9px] font-semibold tracking-[0.16em] text-[#33547D]">
+                    {feature.label}
+                  </span>
+                  <span className="font-mono text-[10px] text-[#5B7390]">
+                    /{feature.number}
+                  </span>
+                </div>
+
+                <div className={`learnai-feature-icon-wrap mt-5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feature.accent} text-[#09234D]`}>
+                  <div className="learnai-feature-icon h-6 w-6">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      {feature.icon}
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="learnai-feature-copy mt-5">
+                  <h3 className="learnai-feature-title text-lg font-bold leading-snug tracking-tight sm:text-xl">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-3 text-xs leading-5 text-[#314D70] sm:text-[13px] sm:leading-6">
+                    {feature.description}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+    
+
+      
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/[0.08] bg-[#05070D] px-5 py-6 sm:px-10 lg:px-16">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
+          <a href="#" className="text-lg font-bold text-[#F2F5FC]">
+            Learn<span className="text-[#4388FF]">AI</span>
+          </a>
+
+          <p className="text-xs text-[#8995A9]">
+            Learn with intention. Grow with confidence.
           </p>
 
-          <div className="mt-6 flex items-center gap-2 text-xs font-medium text-[#8BD6FF] opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
-            <span>Explore feature</span>
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              className="h-3.5 w-3.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M4 10h11M10 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-        </article>
-      ))}
-    </div>
-  </div>
-</section>
-
-     {/* Courses Section */}
-<section className="courses-section" id="courses">
-  <div className="courses-container">
-    <div className="courses-header">
-      <span className="courses-eyebrow">LEARN WITHOUT LIMITS</span>
-
-      <h2 className="courses-title">
-        Discover Your Next Skill
-      </h2>
-
-      <p className="courses-description">
-        Explore courses designed to help you learn faster,
-        build real skills, and achieve more with AI.
-      </p>
-    </div>
-
-  <div className="courses-grid" ref={coursesTrackRef}>
-      {courses.length > 0 ? (
-        courses.map((course) => (
-          <button
-            key={course.id}
-            type="button"
-            className="course-card"
-            onClick={() => {
-              window.location.href = `/login?courseId=${course.id}`;
-            }}
-            aria-label={`Explore ${course.title}`}
-          >
-            <span className="course-card-strap" aria-hidden="true">
-              <span className="course-card-strap-band" />
-              <span className="course-card-clip" />
-            </span>
-            <span className="course-card-star" aria-hidden="true">✳</span>
-
-            <div>
-              <div className="course-card-category">
-                {course.category || "LEARNING"}
-              </div>
-
-              <h3 className="course-card-title">
-                {course.title}
-              </h3>
-            </div>
-
-            <div className="course-card-meta">
-              <span>learnai.</span>
-
-              <span className="course-card-action">
-                Explore <span aria-hidden="true">↗</span>
-              </span>
-            </div>
-          </button>
-        ))
-      ) : (
-        <div className="courses-status">
-          No courses available yet. Check back soon!
-        </div>
-      )}
-    </div>
-  </div>
-</section>
-
-      {/* HOW IT WORKS */}
-  
-{/* HOW IT WORKS */}
-<section
-  id="how-it-works"
-  className="border-t border-white/[0.08] bg-[#05070D] px-5 py-20 sm:px-10 lg:px-16 lg:py-24"
->
-  <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-    <div>
-      <p className="text-xs font-semibold tracking-[0.18em] text-[#79C8FF]">
-        HOW IT WORKS
-      </p>
-
-      <h2 className="mt-5 text-3xl font-semibold tracking-tight text-[#F2F5FC] sm:text-5xl">
-        Learn something new.
-        <br />
-        <span className="text-[#79C8FF]">Make it yours.</span>
-      </h2>
-
-      <p className="mt-5 max-w-md text-sm leading-7 text-[#A0AABC] sm:text-base">
-        Create a course, learn at your pace, and track your progress.
-      </p>
-
-      <a
-        href="/register"
-        className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#79C8FF] px-6 py-3 text-sm font-semibold text-[#05070D] transition hover:bg-[#B7E6FF]"
-      >
-        Start learning <span>↗</span>
-      </a>
-    </div>
-
-    <div className="space-y-3">
-      {[
-        {
-          n: "01",
-          title: "Choose a topic",
-          body: "Tell AI what you want to learn.",
-        },
-        {
-          n: "02",
-          title: "Create your course",
-          body: "Get structured lessons and resources.",
-        },
-        {
-          n: "03",
-          title: "Learn and practice",
-          body: "Test your knowledge and track progress.",
-        },
-      ].map((step) => (
-        <div
-          key={step.n}
-          className="flex items-center gap-5 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-[#3478F6]/40"
-        >
-          <span className="text-sm font-semibold text-[#79C8FF]">
-            {step.n}
-          </span>
-
-          <div>
-            <h3 className="text-base font-medium text-[#F2F5FC]">
-              {step.title}
-            </h3>
-            <p className="mt-1 text-sm text-[#A0AABC]">{step.body}</p>
+          <div className="flex gap-5 text-xs text-[#A0AABC]">
+            <a href="/login" className="transition hover:text-[#79C8FF]">
+              Log in
+            </a>
+            <a href="/register" className="transition hover:text-[#79C8FF]">
+              Sign up
+            </a>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-{/* CTA */}
-<section className="bg-[#05070D] px-5 pb-20 sm:px-10 lg:px-16">
-  <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B101B] px-6 py-14 text-center sm:px-12 sm:py-16">
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(52,120,246,0.16),transparent_65%)]"
-    />
-
-    <div className="relative">
-      <h2 className="text-3xl font-semibold tracking-tight text-[#F2F5FC] sm:text-5xl">
-        Ready to start learning?
-      </h2>
-
-      <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-[#A0AABC]">
-        Turn your curiosity into real skills.
-      </p>
-
-      <a
-        href="/register"
-        className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#F2F5FC] px-6 py-3 text-sm font-semibold text-[#05070D] transition hover:bg-[#79C8FF]"
-      >
-        Get started <span>↗</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-{/* FOOTER */}
-<footer className="border-t border-white/[0.08] bg-[#05070D] px-5 py-6 sm:px-10 lg:px-16">
-  <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
-    <a href="#" className="text-lg font-bold text-[#F2F5FC]">
-      Learn<span className="text-[#4388FF]">AI</span>
-    </a>
-
-    <p className="text-xs text-[#8995A9]">
-      Learn with intention. Grow with confidence.
-    </p>
-
-    <div className="flex gap-5 text-xs text-[#A0AABC]">
-      <a href="/login" className="transition hover:text-[#79C8FF]">
-        Log in
-      </a>
-      <a href="/register" className="transition hover:text-[#79C8FF]">
-        Sign up
-      </a>
-    </div>
-  </div>
-</footer>
-
-
+      </footer>
     </main>
   );
 }
