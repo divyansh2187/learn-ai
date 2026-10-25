@@ -131,7 +131,7 @@ export default function LoginPage() {
     <main className="learnai-login-page relative flex min-h-screen w-full items-stretch justify-center overflow-hidden p-0">
       <section className="relative z-10 grid min-h-screen w-full grid-cols-1 overflow-hidden bg-black lg:grid-cols-[1.15fr_0.85fr]">
         {/* Left welcome panel */}
-        <div ref={welcomePanelRef} className="learnai-login-welcome relative isolate flex min-h-[520px] flex-col overflow-hidden p-7 text-white sm:p-10 lg:min-h-screen lg:p-12 xl:p-16">
+        <div ref={welcomePanelRef} className="learnai-login-welcome relative isolate m-3 flex min-h-[520px] flex-col overflow-hidden rounded-2xl border-[5px] border-black p-7 text-white shadow-[0_0_0_3px_rgba(0,0,0,0.95),0_12px_35px_rgba(0,0,0,0.35)] sm:m-4 sm:p-10 lg:m-4 lg:min-h-[calc(100vh-2rem)] lg:p-12 xl:p-16">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
             <div className="learnai-login-grid absolute inset-0 opacity-40" />
             <div className="absolute -left-20 top-24 h-72 w-72 rounded-full bg-[#3B82F6]/30 blur-[90px]" />
@@ -241,7 +241,8 @@ export default function LoginPage() {
                     ? `/register?courseId=${encodeURIComponent(courseId)}`
                     : "/register"
                 }
-                className="font-semibold text-[#70B7FF] transition hover:text-white"
+                className="!text-blue-500 font-semibold transition hover:!text-blue-300"
+                style={{ color: "#3B82F6" }}
               >
                 Create an account
               </Link>
