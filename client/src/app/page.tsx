@@ -510,15 +510,8 @@ export default function Home() {
               <a href="#courses" className="transition hover:text-white">
                 Courses
               </a>
-              <a
-                href="#how-it-works"
-                className="whitespace-nowrap transition hover:text-white"
-              >
-                How it works
-              </a>
-              <a href="#preview" className="transition hover:text-white">
-                Preview
-              </a>
+             
+            
             </nav>
 
             <div className="flex items-center gap-3 sm:gap-5">
@@ -583,12 +576,8 @@ export default function Home() {
           </header>
 
           <div className="relative z-10 mx-auto flex max-w-[720px] flex-col items-center pb-5 pt-12 text-center sm:pt-16 lg:pt-20">
-            <p
-              className="learnai-reveal text-[9px] font-medium tracking-[.2em] text-[#B8DFFF] sm:text-[10px]"
-              style={{ animationDelay: "120ms" }}
-            >
-              YOUR PERSONAL AI LEARNING SPACE
-            </p>
+            
+          
             <h1
               id="hero-title"
               className="learnai-reveal mt-4 max-w-[700px] text-3xl font-medium leading-[1.06] tracking-[-.055em] text-white sm:mt-5 sm:text-4xl lg:text-[clamp(2.6rem,4vw,3.5rem)]"
