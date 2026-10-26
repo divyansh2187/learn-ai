@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
+
 type Course = {
   id?: string;
   _id?: string;
@@ -137,60 +138,6 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#09030E] text-white">
       <div className="flex min-h-screen">
-        <aside className="hidden w-64 shrink-0 flex-col border-r border-white/[0.08] bg-[#0D0612] px-5 py-7 lg:flex">
-          <Link href="/" className="flex items-center gap-3 px-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D934F7] text-xl font-bold text-black">
-              L
-            </span>
-            <span className="text-xl font-semibold">
-              Learn<span className="text-[#D934F7]">AI</span>
-            </span>
-          </Link>
-
-          <p className="mb-3 mt-12 px-3 text-[10px] font-semibold tracking-[0.2em] text-[#75667C]">
-            WORKSPACE
-          </p>
-
-          <nav className="space-y-2">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 rounded-xl border border-[#D934F7]/20 bg-[#D934F7]/10 px-4 py-3 text-sm text-white"
-            >
-              <span className="text-[#D934F7]">▦</span>
-              Dashboard
-            </Link>
-            <Link
-              href="/courses"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#A69BAC] transition hover:bg-white/[0.04] hover:text-white"
-            >
-              <span>▤</span>
-              My courses
-            </Link>
-            <Link
-              href="/courses/create"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#A69BAC] transition hover:bg-white/[0.04] hover:text-white"
-            >
-              <span>✳</span>
-              Create a course
-            </Link>
-          </nav>
-
-          <div className="mt-auto rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#BCF429]/10 text-[#BCF429]">
-              ✦
-            </div>
-            <p className="mt-4 text-sm font-medium">Keep showing up.</p>
-            <p className="mt-2 text-xs leading-5 text-[#897A91]">
-              Small learning sessions can build lasting skills.
-            </p>
-            <Link
-              href="/courses/create"
-              className="mt-4 inline-flex text-xs font-semibold text-[#D934F7] hover:text-white"
-            >
-              Create a course ↗
-            </Link>
-          </div>
-        </aside>
 
         <section className="min-w-0 flex-1">
           <header className="flex items-center justify-between border-b border-white/[0.08] px-5 py-5 sm:px-8 lg:px-10">
