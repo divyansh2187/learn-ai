@@ -1755,3 +1755,26 @@ a {
 .learnai-glass-card:active {
   background: #CADCF1 !important;
 }
+
+
+
+@keyframes blueFog {
+  0% {
+    transform: translate3d(-7%, 0, 0) scale(0.92);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(5%, -9%, 0) scale(1.08);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(12%, -3%, 0) scale(1.02);
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blue-fog {
+    animation: none !important;
+  }
+}
