@@ -1778,3 +1778,54 @@ a {
     animation: none !important;
   }
 }
+
+
+
+@keyframes workspaceBlueFog {
+  0% {
+    transform: translate3d(-6%, 3%, 0) scale(1);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: translate3d(7%, -5%, 0) scale(1.12);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(-2%, 7%, 0) scale(1.06);
+    opacity: 0.75;
+  }
+}
+
+@keyframes workspaceCyanFog {
+  0% {
+    transform: translate3d(5%, -4%, 0) scale(1);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: translate3d(-7%, 5%, 0) scale(1.15);
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: translate3d(4%, -2%, 0) scale(1.05);
+    opacity: 0.55;
+  }
+}
+
+.workspace-blue-fog {
+  animation: workspaceBlueFog 18s ease-in-out infinite alternate;
+}
+
+.workspace-cyan-fog {
+  animation: workspaceCyanFog 22s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-blue-fog,
+  .workspace-cyan-fog {
+    animation: none;
+  }
+}

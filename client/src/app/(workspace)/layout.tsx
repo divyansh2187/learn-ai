@@ -1,16 +1,18 @@
+
 import Sidebar from "@/components/Sidebar";
+import WorkspaceBackground from "@/components/WorkspaceBackground";
 
 export default function WorkspaceLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="min-h-screen bg-[#09030E] text-white">
-      <div className="flex min-h-screen">
+    <div className="relative isolate min-h-screen overflow-clip bg-[#02050B] text-white p-2">
+      <WorkspaceBackground />
+
+      <div className="relative z-10 flex min-h-screen">
         <Sidebar />
 
-        <main className="min-w-0 flex-1">
+        <main className="min-w-0 flex-1 bg-transparent">
           {children}
         </main>
       </div>
