@@ -60,8 +60,14 @@ const featureCards = [
     number: "01",
     label: "CREATE",
     title: "AI Course Builder",
-    description: "Turn your ideas into structured, personalized courses with AI in seconds.",
-    icon: <><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="8.5" /></>,
+    description:
+      "Turn your ideas into structured, personalized courses with AI in seconds.",
+    icon: (
+      <>
+        <path d="M12 3v18M3 12h18" />
+        <circle cx="12" cy="12" r="8.5" />
+      </>
+    ),
     className: "learnai-card-1",
     accent: "from-violet-300 to-fuchsia-400",
   },
@@ -69,8 +75,14 @@ const featureCards = [
     number: "02",
     label: "EXPLORE",
     title: "YouTube Learning",
-    description: "Transform videos into organized lessons, notes, and useful takeaways.",
-    icon: <><rect x="3" y="5" width="18" height="14" rx="4" /><path d="m10 9 5 3-5 3V9Z" /></>,
+    description:
+      "Transform videos into organized lessons, notes, and useful takeaways.",
+    icon: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="4" />
+        <path d="m10 9 5 3-5 3V9Z" />
+      </>
+    ),
     className: "learnai-card-2",
     accent: "from-cyan-300 to-blue-400",
   },
@@ -78,8 +90,14 @@ const featureCards = [
     number: "03",
     label: "PRACTICE",
     title: "Smart Quizzes",
-    description: "Test your understanding with AI-generated questions and instant feedback.",
-    icon: <><rect x="5" y="3" width="14" height="18" rx="3" /><path d="m8 9 1.5 1.5L12 8M14 10h2M8 15h2M14 15h2" /></>,
+    description:
+      "Test your understanding with AI-generated questions and instant feedback.",
+    icon: (
+      <>
+        <rect x="5" y="3" width="14" height="18" rx="3" />
+        <path d="m8 9 1.5 1.5L12 8M14 10h2M8 15h2M14 15h2" />
+      </>
+    ),
     className: "learnai-card-3",
     accent: "from-violet-300 to-indigo-400",
   },
@@ -87,8 +105,16 @@ const featureCards = [
     number: "04",
     label: "ANALYZE",
     title: "Progress Tracking",
-    description: "See your learning progress, completed lessons, and growth at a glance.",
-    icon: <><path d="M4 19V5M4 19h17" /><rect x="7" y="12" width="3" height="5" rx="1" /><rect x="12" y="8" width="3" height="9" rx="1" /><rect x="17" y="4" width="3" height="13" rx="1" /></>,
+    description:
+      "See your learning progress, completed lessons, and growth at a glance.",
+    icon: (
+      <>
+        <path d="M4 19V5M4 19h17" />
+        <rect x="7" y="12" width="3" height="5" rx="1" />
+        <rect x="12" y="8" width="3" height="9" rx="1" />
+        <rect x="17" y="4" width="3" height="13" rx="1" />
+      </>
+    ),
     className: "learnai-card-4",
     accent: "from-sky-300 to-cyan-400",
   },
@@ -96,8 +122,14 @@ const featureCards = [
     number: "05",
     label: "REMEMBER",
     title: "AI Flashcards",
-    description: "Remember more with focused flashcards and repeatable revision sessions.",
-    icon: <><rect x="6" y="4" width="14" height="16" rx="2.5" /><path d="M9 8h8M9 12h5M4 7v13a2 2 0 0 0 2 2h11" /></>,
+    description:
+      "Remember more with focused flashcards and repeatable revision sessions.",
+    icon: (
+      <>
+        <rect x="6" y="4" width="14" height="16" rx="2.5" />
+        <path d="M9 8h8M9 12h5M4 7v13a2 2 0 0 0 2 2h11" />
+      </>
+    ),
     className: "learnai-card-5",
     accent: "from-fuchsia-300 to-violet-400",
   },
@@ -351,16 +383,19 @@ export default function Home() {
           border: 1px solid rgba(35, 70, 115, 0.16);
           border-radius: 17px;
           color: #111827;
-          background: #D0E0F1;
+          background: #d0e0f1;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
           transform-origin: center center;
-          transition: transform 420ms cubic-bezier(.2,.75,.25,1), box-shadow 350ms ease, border-color 350ms ease;
+          transition:
+            transform 420ms cubic-bezier(0.2, 0.75, 0.25, 1),
+            box-shadow 350ms ease,
+            border-color 350ms ease;
         }
         .learnai-feature-icon-wrap {
           position: relative;
-          background: #B6CDE9 !important;
-          color: #102C50;
-          border: 1px solid rgba(25, 54, 91, .12);
+          background: #b6cde9 !important;
+          color: #102c50;
+          border: 1px solid rgba(25, 54, 91, 0.12);
         }
         .learnai-feature-icon svg {
           display: block;
@@ -372,77 +407,218 @@ export default function Home() {
           stroke-linejoin: round;
         }
         .learnai-feature-title {
-          background: linear-gradient(100deg, #101827 0%, #2458A6 48%, #3988D8 78%, #173B73 100%);
+          background: linear-gradient(
+            100deg,
+            #101827 0%,
+            #2458a6 48%,
+            #3988d8 78%,
+            #173b73 100%
+          );
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
           -webkit-text-fill-color: transparent;
         }
-        .learnai-glass-card p { color: #263B55 !important; }
-        .learnai-glass-card > div:first-child span { color: #304965 !important; }
+        .learnai-glass-card p {
+          color: #263b55 !important;
+        }
+        .learnai-glass-card > div:first-child span {
+          color: #304965 !important;
+        }
         .learnai-glass-card:hover {
-          background: #D0E0F1 !important;
+          background: #d0e0f1 !important;
           border-color: rgba(35, 70, 115, 0.16) !important;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
         }
-        .learnai-card-1 { top: 34%; left: 1%; z-index: 1; transform: rotate(-7deg); }
-        .learnai-card-2 { top: 22%; left: 17%; z-index: 2; transform: rotate(4deg); }
-        .learnai-card-3 { top: 12%; left: 34%; z-index: 3; transform: rotate(-3deg); }
-        .learnai-card-4 { top: 4%; left: 51%; z-index: 4; transform: rotate(3deg); }
-        .learnai-card-5 { top: 0; left: 68%; z-index: 5; transform: rotate(-3deg); }
+        .learnai-card-1 {
+          top: 34%;
+          left: 1%;
+          z-index: 1;
+          transform: rotate(-7deg);
+        }
+        .learnai-card-2 {
+          top: 22%;
+          left: 17%;
+          z-index: 2;
+          transform: rotate(4deg);
+        }
+        .learnai-card-3 {
+          top: 12%;
+          left: 34%;
+          z-index: 3;
+          transform: rotate(-3deg);
+        }
+        .learnai-card-4 {
+          top: 4%;
+          left: 51%;
+          z-index: 4;
+          transform: rotate(3deg);
+        }
+        .learnai-card-5 {
+          top: 0;
+          left: 68%;
+          z-index: 5;
+          transform: rotate(-3deg);
+        }
         .learnai-glass-card:hover {
           z-index: 20;
-          background: #D0E0F1 !important;
+          background: #d0e0f1 !important;
           border-color: rgba(35, 70, 115, 0.16) !important;
           box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
         }
-        .learnai-card-1:hover { transform: translateY(-16px) rotate(-3deg) scale(1.035); }
-        .learnai-card-2:hover { transform: translateY(-16px) rotate(1deg) scale(1.035); }
-        .learnai-card-3:hover { transform: translateY(-16px) rotate(0deg) scale(1.035); }
-        .learnai-card-4:hover { transform: translateY(-16px) rotate(1deg) scale(1.035); }
-        .learnai-card-5:hover { transform: translateY(-16px) rotate(-1deg) scale(1.035); }
+        .learnai-card-1:hover {
+          transform: translateY(-16px) rotate(-3deg) scale(1.035);
+        }
+        .learnai-card-2:hover {
+          transform: translateY(-16px) rotate(1deg) scale(1.035);
+        }
+        .learnai-card-3:hover {
+          transform: translateY(-16px) rotate(0deg) scale(1.035);
+        }
+        .learnai-card-4:hover {
+          transform: translateY(-16px) rotate(1deg) scale(1.035);
+        }
+        .learnai-card-5:hover {
+          transform: translateY(-16px) rotate(-1deg) scale(1.035);
+        }
         @media (max-width: 1024px) {
-          .learnai-card-stage { height: 470px; }
-          .learnai-glass-card { width: clamp(170px, 23vw, 220px); height: 260px; }
-          .learnai-card-1 { top: 36%; left: 0%; }
-          .learnai-card-2 { top: 25%; left: 14%; }
-          .learnai-card-3 { top: 14%; left: 29%; }
-          .learnai-card-4 { top: 5%; left: 44%; }
-          .learnai-card-5 { top: 0; left: 59%; }
+          .learnai-card-stage {
+            height: 470px;
+          }
+          .learnai-glass-card {
+            width: clamp(170px, 23vw, 220px);
+            height: 260px;
+          }
+          .learnai-card-1 {
+            top: 36%;
+            left: 0%;
+          }
+          .learnai-card-2 {
+            top: 25%;
+            left: 14%;
+          }
+          .learnai-card-3 {
+            top: 14%;
+            left: 29%;
+          }
+          .learnai-card-4 {
+            top: 5%;
+            left: 44%;
+          }
+          .learnai-card-5 {
+            top: 0;
+            left: 59%;
+          }
         }
         @media (max-width: 640px) {
-          #features { min-height: 100svh; padding-top: 2.5rem; padding-bottom: 2.5rem; }
-          #features .learnai-features-header { margin-bottom: 1.25rem; }
-          .learnai-card-stage { height: 660px; max-width: 430px; }
-          .learnai-glass-card { width: min(225px, 64vw); height: 245px; padding: 1rem; }
-          .learnai-card-1 { top: 57%; left: 0%; transform: rotate(-6deg); }
-          .learnai-card-2 { top: 43%; left: 7%; transform: rotate(4deg); }
-          .learnai-card-3 { top: 29%; left: 14%; transform: rotate(-3deg); }
-          .learnai-card-4 { top: 15%; left: 21%; transform: rotate(3deg); }
-          .learnai-card-5 { top: 1%; left: 28%; transform: rotate(-3deg); }
-          .learnai-card-1:hover { transform: translateY(-8px) rotate(-3deg) scale(1.02); }
-          .learnai-card-2:hover { transform: translateY(-8px) rotate(1deg) scale(1.02); }
-          .learnai-card-3:hover { transform: translateY(-8px) rotate(0deg) scale(1.02); }
-          .learnai-card-4:hover { transform: translateY(-8px) rotate(1deg) scale(1.02); }
-          .learnai-card-5:hover { transform: translateY(-8px) rotate(-1deg) scale(1.02); }
+          #features {
+            min-height: 100svh;
+            padding-top: 2.5rem;
+            padding-bottom: 2.5rem;
+          }
+          #features .learnai-features-header {
+            margin-bottom: 1.25rem;
+          }
+          .learnai-card-stage {
+            height: 660px;
+            max-width: 430px;
+          }
+          .learnai-glass-card {
+            width: min(225px, 64vw);
+            height: 245px;
+            padding: 1rem;
+          }
+          .learnai-card-1 {
+            top: 57%;
+            left: 0%;
+            transform: rotate(-6deg);
+          }
+          .learnai-card-2 {
+            top: 43%;
+            left: 7%;
+            transform: rotate(4deg);
+          }
+          .learnai-card-3 {
+            top: 29%;
+            left: 14%;
+            transform: rotate(-3deg);
+          }
+          .learnai-card-4 {
+            top: 15%;
+            left: 21%;
+            transform: rotate(3deg);
+          }
+          .learnai-card-5 {
+            top: 1%;
+            left: 28%;
+            transform: rotate(-3deg);
+          }
+          .learnai-card-1:hover {
+            transform: translateY(-8px) rotate(-3deg) scale(1.02);
+          }
+          .learnai-card-2:hover {
+            transform: translateY(-8px) rotate(1deg) scale(1.02);
+          }
+          .learnai-card-3:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.02);
+          }
+          .learnai-card-4:hover {
+            transform: translateY(-8px) rotate(1deg) scale(1.02);
+          }
+          .learnai-card-5:hover {
+            transform: translateY(-8px) rotate(-1deg) scale(1.02);
+          }
         }
         @media (max-width: 390px) {
-          .learnai-card-stage { height: 620px; }
-          .learnai-glass-card { width: 66vw; height: 225px; padding: .85rem; }
-          .learnai-card-1 { top: 60%; left: -2%; }
-          .learnai-card-2 { top: 47%; left: 5%; }
-          .learnai-card-3 { top: 34%; left: 12%; }
-          .learnai-card-4 { top: 21%; left: 19%; }
-          .learnai-card-5 { top: 8%; left: 26%; }
+          .learnai-card-stage {
+            height: 620px;
+          }
+          .learnai-glass-card {
+            width: 66vw;
+            height: 225px;
+            padding: 0.85rem;
+          }
+          .learnai-card-1 {
+            top: 60%;
+            left: -2%;
+          }
+          .learnai-card-2 {
+            top: 47%;
+            left: 5%;
+          }
+          .learnai-card-3 {
+            top: 34%;
+            left: 12%;
+          }
+          .learnai-card-4 {
+            top: 21%;
+            left: 19%;
+          }
+          .learnai-card-5 {
+            top: 8%;
+            left: 26%;
+          }
         }
         @media (min-width: 1025px) and (max-height: 760px) {
-          #features { padding-top: 1.25rem; padding-bottom: 1.25rem; }
-          #features .learnai-features-header { margin-bottom: .5rem; }
-          #features .learnai-card-stage { height: clamp(340px, 48vh, 410px); }
-          #features .learnai-glass-card { height: clamp(220px, 31vh, 255px); }
+          #features {
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+          }
+          #features .learnai-features-header {
+            margin-bottom: 0.5rem;
+          }
+          #features .learnai-card-stage {
+            height: clamp(340px, 48vh, 410px);
+          }
+          #features .learnai-glass-card {
+            height: clamp(220px, 31vh, 255px);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
-          .learnai-glass-card, .learnai-glass-card::before { transition: none !important; }
+          .learnai-glass-card,
+          .learnai-glass-card::before {
+            transition: none !important;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           .learnai-reveal,
@@ -510,8 +686,6 @@ export default function Home() {
               <a href="#courses" className="transition hover:text-white">
                 Courses
               </a>
-             
-            
             </nav>
 
             <div className="flex items-center gap-3 sm:gap-5">
@@ -576,8 +750,6 @@ export default function Home() {
           </header>
 
           <div className="relative z-10 mx-auto flex max-w-[720px] flex-col items-center pb-5 pt-12 text-center sm:pt-16 lg:pt-20">
-            
-          
             <h1
               id="hero-title"
               className="learnai-reveal mt-4 max-w-[700px] text-3xl font-medium leading-[1.06] tracking-[-.055em] text-white sm:mt-5 sm:text-4xl lg:text-[clamp(2.6rem,4vw,3.5rem)]"
@@ -633,11 +805,18 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+
                 <button
                   type="submit"
-                  className="rounded-full bg-[#05070D] px-4 py-2 text-[9px] font-medium text-white transition hover:bg-[#142744] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4388FF] sm:px-5 sm:text-[10px]"
+                  className="liquid-metal-button rounded-full text-[9px] font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4388FF] sm:text-[10px]"
                 >
-                  Generate <span aria-hidden="true">↗</span>
+                  <span
+                    className="liquid-metal-button__shine"
+                    aria-hidden="true"
+                  />
+                  <span className="liquid-metal-button__content gap-1.5 px-4 py-2 sm:px-5">
+                    Generate <span aria-hidden="true">↗</span>
+                  </span>
                 </button>
               </div>
             </form>
@@ -711,13 +890,15 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* FEATURES SECTION */}
       <section
         id="features"
         className="learnai-frame relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden px-5 py-10 text-white sm:px-8 lg:px-12"
       >
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10"
+        >
           <div className="learnai-grid absolute inset-0 opacity-70" />
           <div className="absolute inset-x-0 bottom-0 h-[48%] bg-[linear-gradient(to_bottom,transparent,rgba(52,143,255,.2)_28%,rgba(145,222,255,.45)_76%,rgba(224,249,255,.75))]" />
           <div className="learnai-wave absolute -bottom-14 left-[-8%] h-28 w-[116%]" />
@@ -750,7 +931,9 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className={`learnai-feature-icon-wrap mt-5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feature.accent} text-[#09234D]`}>
+                <div
+                  className={`learnai-feature-icon-wrap mt-5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feature.accent} text-[#09234D]`}
+                >
                   <div className="learnai-feature-icon h-6 w-6">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       {feature.icon}
@@ -772,29 +955,54 @@ export default function Home() {
         </div>
       </section>
 
-  
-
       {/* FOOTER */}
       <footer className="learnai-frame relative isolate overflow-hidden border-t border-white/20 px-5 pb-7 pt-10 text-white sm:px-10 sm:pt-12 lg:px-16">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10"
+        >
           <div className="learnai-grid absolute inset-0 opacity-50" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_bottom,transparent,rgba(225,248,255,.3))]" />
         </div>
 
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:gap-8">
           <div className="max-w-md">
-            <a href="#" aria-label="LearnAI home" className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-white">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/70 text-xs">✳</span>
+            <a
+              href="#"
+              aria-label="LearnAI home"
+              className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-white"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/70 text-xs">
+                ✳
+              </span>
               Learn<span className="-ml-2 text-blue-300">AI</span>
             </a>
             <p className="mt-4 max-w-sm text-sm leading-6 text-white/75">
-              Smart learning tools, personalized courses, and AI-powered practice to help you learn with confidence.
+              Smart learning tools, personalized courses, and AI-powered
+              practice to help you learn with confidence.
             </p>
             <div className="mt-5 flex flex-wrap gap-4 text-xs text-white/80">
-              <a href={contactDetails.github} target="_blank" rel="noreferrer" className="transition hover:text-white hover:underline">GitHub ↗</a>
-              <a href={contactDetails.linkedin} target="_blank" rel="noreferrer" className="transition hover:text-white hover:underline">LinkedIn ↗</a>
+              <a
+                href={contactDetails.github}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-white hover:underline"
+              >
+                GitHub ↗
+              </a>
+              <a
+                href={contactDetails.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-white hover:underline"
+              >
+                LinkedIn ↗
+              </a>
             </div>
-            <a href={`tel:${contactDetails.phone.replace(/[^+\d]/g, "")}`} className="mt-3 inline-flex text-xs text-white/80 transition hover:text-white">
+            <a
+              href={`tel:${contactDetails.phone.replace(/[^+\d]/g, "")}`}
+              className="mt-3 inline-flex text-xs text-white/80 transition hover:text-white"
+            >
               Call: {contactDetails.phone}
             </a>
           </div>
@@ -816,8 +1024,12 @@ export default function Home() {
           <p>Learn with intention. Grow with confidence.</p>
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none mt-2 select-none overflow-hidden text-center text-[clamp(4rem,18.5vw,17rem)] font-semibold leading-[0.78] tracking-[-0.075em] text-white/[0.96]">
-          <span className="text-white">LEARN</span><span className="text-blue-300">AI</span>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none mt-2 select-none overflow-hidden text-center text-[clamp(4rem,18.5vw,17rem)] font-semibold leading-[0.78] tracking-[-0.075em] text-white/[0.96]"
+        >
+          <span className="text-white">LEARN</span>
+          <span className="text-blue-300">AI</span>
         </div>
       </footer>
     </main>

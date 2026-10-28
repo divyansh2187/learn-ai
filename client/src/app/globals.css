@@ -1829,3 +1829,118 @@ a {
     animation: none;
   }
 }
+
+
+
+
+.liquid-metal-button {
+  position: relative;
+  display: inline-flex;
+  padding: 1.5px;
+  border-radius: 9999px;
+  isolation: isolate;
+  overflow: hidden;
+  text-decoration: none;
+  color: #fff;
+  background: #111923;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(97, 197, 250, 0.10);
+  transition: box-shadow 300ms ease, transform 300ms ease;
+
+}
+
+.liquid-metal-button__shine {
+  position: absolute;
+  inset: -180%;
+  z-index: -1;
+  background: conic-gradient(
+    from 0deg,
+    #202a37 0deg,
+    #7c91a8 28deg,
+    #f8ffff 48deg,
+    #53dfff 64deg,
+    #124dff 80deg,
+    #141b31 104deg,
+    #ff6a37 126deg,
+    #fff0bc 144deg,
+    #ffffff 160deg,
+    #65eaff 181deg,
+    #19273c 205deg,
+    #a8b6c8 232deg,
+    #ffffff 252deg,
+    #f3b64d 270deg,
+    #30465e 300deg,
+    #202a37 360deg
+  );
+  animation: liquid-metal-rotate 6s linear infinite;
+  filter: blur(1.5px);
+}
+
+.liquid-metal-button__content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 24, 38, 0.97),
+    rgba(4, 10, 19, 0.98)
+  );
+  white-space: nowrap;
+  backdrop-filter: blur(18px);
+  transition: background 300ms ease;
+}
+
+.liquid-metal-button__content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.13) 32%,
+    rgba(117, 228, 255, 0.10) 40%,
+    transparent 56%
+  );
+}
+
+.liquid-metal-button:hover {
+  box-shadow:
+    0 0 10px rgba(97, 197, 250, 0.30),
+    0 0 24px rgba(38, 132, 255, 0.18),
+    0 0 34px rgba(255, 177, 91, 0.10);
+  transform: translateY(-1px);
+}
+
+.liquid-metal-button:hover .liquid-metal-button__content {
+  background: linear-gradient(
+    180deg,
+    rgba(22, 36, 54, 0.96),
+    rgba(6, 13, 24, 0.98)
+  );
+}
+
+@keyframes liquid-metal-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-metal-button__shine {
+    animation: none;
+  }
+
+  .liquid-metal-button,
+  .liquid-metal-button__content {
+    transition: none;
+  }
+}

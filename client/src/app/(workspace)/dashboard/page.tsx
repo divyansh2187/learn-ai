@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -23,6 +22,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import "@/app/globals.css";
 
 type Course = {
   id?: string;
@@ -55,10 +55,10 @@ type DashboardData = {
 };
 
 const glass =
-  "min-w-0 rounded-[22px] border border-white/[0.12] " +
-  "bg-transparent backdrop-blur-xl backdrop-saturate-150 " +
-  "shadow-[0_6px_24px_rgba(0,0,0,0.10)] " +
-  "ring-1 ring-inset ring-white/[0.025]";
+  "min-w-0 rounded-[22px] border border-white/[0.14] " +
+  "bg-[#101722]/75 backdrop-blur-xl backdrop-saturate-150 " +
+  "shadow-[0_8px_32px_rgba(0,0,0,0.20)] " +
+  "ring-1 ring-inset ring-white/[0.05]";
 
 const muted = "text-[#A9BAD3]";
 
@@ -139,9 +139,7 @@ export default function DashboardPage() {
         }
 
         if (!response.ok || result.success === false) {
-          throw new Error(
-            result.message || "Unable to load your dashboard.",
-          );
+          throw new Error(result.message || "Unable to load your dashboard.");
         }
 
         if (active) setDashboard(result.data ?? result);
@@ -237,10 +235,7 @@ export default function DashboardPage() {
     return days;
   }, [quizzes]);
 
-  const maxActivity = Math.max(
-    1,
-    ...weeklyActivity.map((day) => day.count),
-  );
+  const maxActivity = Math.max(1, ...weeklyActivity.map((day) => day.count));
 
   const recentQuizData = useMemo(
     () =>
@@ -278,8 +273,6 @@ export default function DashboardPage() {
 
   return (
     <main className="relative isolate min-h-screen w-full min-w-0 overflow-x-clip px-3 py-3 text-white sm:px-5 sm:py-4 lg:px-6">
-     
-
       {/* Subtle login-page grid */}
       <div
         aria-hidden="true"
@@ -301,25 +294,23 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#61C5FA]">
-              LearnAI
-            </p>
+            <span className="text-sm font-medium tracking-[-0.04em] sm:text-base">
+                Learn<span className="text-[#8BD6FF]">AI</span>
+              </span>
 
             <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
               Dashboard
             </h1>
 
-            <p className={`mt-1 text-xs sm:text-sm ${muted}`}>
-              Plan, prioritize, and make progress on your learning.
-            </p>
+           
           </div>
 
-          <Link
-            href="/courses/create"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#61C5FA]/30 bg-[#2684FF]/15 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-xl transition hover:border-[#61C5FA]/60 hover:bg-[#2684FF]/25 sm:text-sm"
-          >
-            <Plus size={16} />
-            Create new course
+          <Link href="/courses/create" className="liquid-metal-button">
+            <span className="liquid-metal-button__shine" aria-hidden="true" />
+            <span className="liquid-metal-button__content">
+              <Plus size={16} />
+              Create new course
+            </span>
           </Link>
         </header>
 
@@ -443,9 +434,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="relative mt-3 flex shrink-0 items-center justify-between border-t border-white/[0.10] pt-3">
-              <p className={`text-xs ${muted}`}>
-                Attempts recorded this week
-              </p>
+              <p className={`text-xs ${muted}`}>Attempts recorded this week</p>
 
               <p className="text-sm font-semibold text-white">
                 {weeklyActivity.reduce((sum, day) => sum + day.count, 0)}
@@ -699,9 +688,7 @@ export default function DashboardPage() {
 
                   <div className="relative mt-2 flex shrink-0 items-center justify-between gap-3 border-t border-white/[0.10] pt-2">
                     <div>
-                      <p className={`text-xs ${muted}`}>
-                        Latest quiz score
-                      </p>
+                      <p className={`text-xs ${muted}`}>Latest quiz score</p>
                       <p className="mt-0.5 text-xl font-semibold text-white">
                         {recentQuizData[recentQuizData.length - 1].score}%
                       </p>
@@ -938,7 +925,7 @@ export default function DashboardPage() {
           </article>
         </section>
 
-        {/* Time Tracker */}
+        {/* Time Tracker
         <section className="mt-3">
           <article className="relative overflow-hidden rounded-[22px] border border-white/[0.12] bg-transparent p-4 backdrop-blur-xl sm:px-5 sm:py-4">
             <div
@@ -1005,7 +992,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </article>
-        </section>
+        </section> */}
 
         <footer
           className={`mt-4 flex flex-col gap-1.5 border-t border-white/[0.12] pt-3 text-[10px] ${muted} sm:flex-row sm:items-center sm:justify-between`}
@@ -1177,11 +1164,18 @@ function MetricCard({
   const style = styles[color];
 
   return (
-    <article
-      className={`relative min-w-0 overflow-hidden rounded-[20px] border border-white/[0.12] bg-transparent p-3 backdrop-blur-xl backdrop-saturate-150 shadow-[0_6px_24px_rgba(0,0,0,0.08)] sm:p-4 ${
-        featured ? "border-[#61C5FA]/25" : ""
-      }`}
-    >
+<article
+  className={`${glass} relative min-w-0 overflow-hidden rounded-[20px]
+    border border-white/[0.12]
+    p-3 backdrop-blur-xl backdrop-saturate-150
+    shadow-[0_8px_32px_rgba(0,0,0,0.20)]
+    ring-1 ring-inset ring-white/[0.05] sm:p-4 ${
+      featured
+        ? "bg-gradient-to-br from-[#0f0fc4] to-[#8BD6FF] ,  border-0"
+        : "bg-[#101722]/75"
+    }`}
+>
+    
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.025] via-transparent to-[#2684FF]/[0.025]"
@@ -1189,9 +1183,7 @@ function MetricCard({
 
       <div className="relative flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-medium text-white sm:text-sm">
-            {label}
-          </p>
+          <p className="text-xs font-medium text-white sm:text-sm">{label}</p>
           <p className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
             {value}
           </p>
@@ -1204,7 +1196,9 @@ function MetricCard({
         </span>
       </div>
 
-      <p className={`relative mt-2 flex items-center gap-2 text-[10px] ${muted}`}>
+      <p
+        className={`relative mt-2 flex items-center gap-2 text-[10px] ${muted}`}
+      >
         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
         {note}
       </p>

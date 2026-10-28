@@ -29,40 +29,40 @@ export default function WorkspaceBackground() {
         }}
       />
 
-      {/* Broad, concentrated blue glow behind the hero */}
+      {/* Blue glow behind the hero */}
       <div
         className="absolute inset-0"
         style={{
           background: `
             radial-gradient(
               ellipse 56% 43% at 50% 75%,
-              rgba(43, 125, 232, 0.88) 0%,
-              rgba(36, 105, 205, 0.70) 30%,
-              rgba(27, 77, 145, 0.35) 58%,
-              rgba(16, 43, 80, 0.08) 78%,
+              rgba(43, 125, 232, 0.78) 0%,
+              rgba(36, 105, 205, 0.58) 30%,
+              rgba(27, 77, 145, 0.30) 58%,
+              rgba(16, 43, 80, 0.06) 78%,
               transparent 100%
             )
           `,
         }}
       />
 
-      {/* Soft blue light spreading horizontally across the lower half */}
+      {/* Soft horizontal blue light */}
       <div
         className="absolute inset-0"
         style={{
           background: `
             radial-gradient(
               ellipse 100% 35% at 50% 83%,
-              rgba(76, 158, 235, 0.45) 0%,
-              rgba(73, 151, 221, 0.25) 48%,
-              rgba(91, 172, 230, 0.08) 75%,
+              rgba(76, 158, 235, 0.35) 0%,
+              rgba(73, 151, 221, 0.18) 48%,
+              rgba(91, 172, 230, 0.06) 75%,
               transparent 100%
             )
           `,
         }}
       />
 
-      {/* Diffused icy-white fog rising from the bottom edge */}
+      {/* Icy-white fog at the bottom */}
       <div
         className="absolute inset-x-0 bottom-0 h-[26%]"
         style={{
@@ -70,10 +70,10 @@ export default function WorkspaceBackground() {
             linear-gradient(
               180deg,
               rgba(180, 228, 249, 0) 0%,
-              rgba(183, 229, 248, 0.16) 24%,
-              rgba(201, 238, 251, 0.48) 55%,
-              rgba(221, 246, 253, 0.82) 82%,
-              rgba(232, 249, 255, 0.96) 100%
+              rgba(183, 229, 248, 0.10) 24%,
+              rgba(201, 238, 251, 0.30) 55%,
+              rgba(221, 246, 253, 0.58) 82%,
+              rgba(232, 249, 255, 0.72) 100%
             )
           `,
         }}
@@ -98,17 +98,16 @@ export default function WorkspaceBackground() {
         }}
       />
 
-      {/* Fade the grid into the bright fog */}
+      {/* Subtle dark tint to reduce brightness changes */}
       <div
         className="absolute inset-0"
         style={{
           background: `
             linear-gradient(
               180deg,
-              transparent 0%,
-              transparent 72%,
-              rgba(205, 240, 253, 0.12) 84%,
-              rgba(225, 247, 255, 0.42) 100%
+              rgba(0, 0, 0, 0.02) 0%,
+              rgba(0, 0, 0, 0.05) 55%,
+              rgba(5, 15, 30, 0.16) 100%
             )
           `,
         }}
