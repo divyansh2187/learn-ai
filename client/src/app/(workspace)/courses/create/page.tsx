@@ -2,13 +2,19 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
 const levels = ["Beginner", "Intermediate", "Advanced"];
 const durations = ["1 week", "2 weeks", "4 weeks", "8 weeks"];
 const styles = ["Video-first", "Balanced", "Practice-first"];
+
+const steps = [
+  { number: "01", label: "Topic", id: "course-topic" },
+  { number: "02", label: "Your Level", id: "course-level" },
+  { number: "03", label: "Learning Style", id: "course-style" },
+  { number: "04", label: "Preferences", id: "course-preferences" },
+];
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -20,19 +26,23 @@ export default function CreateCoursePage() {
   const [goals, setGoals] = useState("");
   const [includeQuizzes, setIncludeQuizzes] = useState(true);
   const [includeVideos, setIncludeVideos] = useState(true);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeStep, setActiveStep] = useState(0);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-    setMessage("");
     setError("");
 
     if (!topic.trim()) {
       setError("Enter a topic to start building your course.");
+      setActiveStep(0);
+      document.getElementById("course-topic")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
@@ -107,52 +117,71 @@ export default function CreateCoursePage() {
     }
   }
 
+  function navigateToStep(index: number, id: string) {
+    setActiveStep(index);
+
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+
+  const inputClass =
+    "w-full min-w-0 rounded-xl border border-white/[0.13] bg-white/[0.045] px-3.5 py-2 text-sm leading-5 text-white outline-none backdrop-blur-xl transition placeholder:text-[#8294AD] focus:border-[#61C5FA]/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-[#2684FF]/20";
+
+  const labelClass =
+    "mb-1.5 block text-xs font-medium text-[#E3ECF7] sm:text-sm";
+
   return (
-    <main className="min-h-screen bg-[#09030E] text-white">
-      <header className="flex items-center justify-between border-b border-white/[0.08] px-5 py-5 sm:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D934F7] text-xl font-bold text-black">
-            L
-          </span>
-          <span className="text-xl font-semibold">
-            Learn<span className="text-[#D934F7]">AI</span>
-          </span>
-        </Link>
+    <main className="relative isolate min-h-full w-full overflow-x-hidden bg-transparent px-3 py-4 text-white sm:px-5 lg:px-6 lg:py-3">
 
-        <Link
-          href="/dashboard"
-          className="rounded-full border border-white/10 px-4 py-2.5 text-sm text-[#A69BAC] transition hover:bg-white/[0.05] hover:text-white"
-        >
-          ← Dashboard
-        </Link>
-      </header>
+      {/* Background Glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      >
+        <div className="absolute -left-40 top-10 h-[350px] w-[350px] rounded-full bg-[#155EAB]/20 blur-[120px]" />
 
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-[1fr_0.7fr] lg:gap-20 lg:px-10">
-        <section>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#D934F7]/20 bg-[#D934F7]/[0.07] px-3 py-2 text-xs text-[#E4A1F4]">
-            <span>✳</span> AI COURSE STUDIO
+        <div className="absolute -right-40 top-[20%] h-[400px] w-[400px] rounded-full bg-[#2684FF]/15 blur-[130px]" />
+
+        <div className="absolute bottom-[-150px] left-[35%] h-[300px] w-[300px] rounded-full bg-[#61C5FA]/10 blur-[120px]" />
+      </div>
+
+      {/* Main Layout */}
+      <section className="relative z-10 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-start gap-5 py-2 lg:grid-cols-[minmax(0,1fr)_230px] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+
+        {/* LEFT SIDE - COURSE FORM */}
+        <div className="min-w-0">
+
+          {/* Heading */}
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                Create your course
+              </h1>
+
+              <p className="mt-1 text-xs text-[#8294AD] sm:text-sm">
+                Customize your learning experience.
+              </p>
+            </div>
+
+            <span className="shrink-0 rounded-full border border-[#61C5FA]/25 bg-[#2684FF]/10 px-3 py-1.5 text-[10px] font-semibold tracking-wider text-[#8EDAFF] backdrop-blur-xl">
+              AI POWERED
+            </span>
           </div>
 
-          <h1 className="mt-6 max-w-2xl text-4xl font-medium leading-tight tracking-tight sm:text-5xl">
-            Turn your curiosity into a{" "}
-            <span className="text-[#D934F7]">learning plan.</span>
-          </h1>
-
-          <p className="mt-5 max-w-xl text-sm leading-7 text-[#A69BAC] sm:text-base">
-            Tell LearnAI what you want to learn. Choose your level,
-            timeline, and learning style to shape a course around your
-            goals.
-          </p>
-
+          {/* Glass Form */}
           <form
             onSubmit={handleSubmit}
-            className="mt-10 space-y-8 rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-8"
+            className="min-w-0 space-y-3 rounded-[22px] border border-white/[0.16] bg-[#101722]/45 p-3.5 shadow-[0_8px_40px_rgba(0,0,0,0.20)] backdrop-blur-2xl backdrop-saturate-150 sm:p-5 lg:space-y-3 lg:p-5"
           >
-            <div>
-              <label
-                htmlFor="topic"
-                className="mb-3 block text-sm font-medium"
-              >
+
+            {/* Topic */}
+            <div
+              id="course-topic"
+              className="min-w-0 scroll-mt-4"
+            >
+              <label htmlFor="topic" className={labelClass}>
                 What do you want to learn?
               </label>
 
@@ -160,120 +189,145 @@ export default function CreateCoursePage() {
                 id="topic"
                 required
                 maxLength={300}
-                rows={3}
+                rows={2}
                 value={topic}
+                onFocus={() => setActiveStep(0)}
                 onChange={(event) => {
                   setTopic(event.target.value);
-                  setMessage("");
                   setError("");
                 }}
                 placeholder="e.g. Full-stack development with React and Node.js"
-                className="w-full resize-y rounded-2xl border border-white/10 bg-[#0D0612] px-4 py-4 text-sm leading-6 outline-none transition placeholder:text-[#75667C] focus:border-[#D934F7]/60 focus:ring-2 focus:ring-[#D934F7]/10"
+                className={`${inputClass} h-[58px] min-h-[58px] resize-none`}
               />
 
-              <p className="mt-2 text-right text-xs text-[#75667C]">
+              <p className="mt-0.5 text-right text-[10px] text-[#71839B]">
                 {topic.length}/300
               </p>
             </div>
 
-            <div>
-              <p className="mb-3 text-sm font-medium">
-                Your current level
-              </p>
+            {/* Level and Duration */}
+            <div
+              id="course-level"
+              className="grid min-w-0 scroll-mt-4 grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <div className="min-w-0">
+                <p className={labelClass}>
+                  Your current level
+                </p>
 
-              <div className="grid grid-cols-3 gap-2">
-                {levels.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setLevel(item)}
-                    aria-pressed={level === item}
-                    className={`rounded-xl border px-2 py-3 text-xs transition sm:text-sm ${
-                      level === item
-                        ? "border-[#D934F7]/50 bg-[#D934F7]/10 text-white"
-                        : "border-white/10 bg-white/[0.02] text-[#A69BAC] hover:border-white/20"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
+                <div className="grid grid-cols-3 gap-1.5">
+                  {levels.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setLevel(item);
+                        setActiveStep(1);
+                      }}
+                      aria-pressed={level === item}
+                      className={`flex h-[42px] min-w-0 items-center justify-center whitespace-nowrap rounded-lg border px-1 text-[10px] font-medium transition sm:text-xs ${
+                        level === item
+                          ? "border-[#61C5FA]/50 bg-[#2684FF]/[0.16] text-white"
+                          : "border-white/[0.12] bg-white/[0.04] text-[#A9BAD3] hover:border-[#61C5FA]/35 hover:bg-white/[0.07]"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <label htmlFor="duration" className={labelClass}>
+                  Learning timeline
+                </label>
+
+                <select
+                  id="duration"
+                  value={duration}
+                  onFocus={() => setActiveStep(1)}
+                  onChange={(event) => {
+                    setDuration(event.target.value);
+                    setActiveStep(1);
+                  }}
+                  className={`${inputClass} h-[42px] py-1.5`}
+                >
+                  {durations.map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                      className="bg-[#101722]"
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="duration"
-                className="mb-3 block text-sm font-medium"
-              >
-                Learning timeline
-              </label>
-
-              <select
-                id="duration"
-                value={duration}
-                onChange={(event) => setDuration(event.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#0D0612] px-4 py-3.5 text-sm outline-none focus:border-[#D934F7]/60"
-              >
-                {durations.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <p className="mb-3 text-sm font-medium">
+            {/* Learning Style */}
+            <div
+              id="course-style"
+              className="min-w-0 scroll-mt-4"
+            >
+              <p className={labelClass}>
                 How do you learn best?
               </p>
 
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {styles.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setStyle(item)}
+                    onClick={() => {
+                      setStyle(item);
+                      setActiveStep(2);
+                    }}
                     aria-pressed={style === item}
-                    className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition ${
+                    className={`flex h-[62px] min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left backdrop-blur-xl transition ${
                       style === item
-                        ? "border-[#D934F7]/50 bg-[#D934F7]/[0.07]"
-                        : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                        ? "border-[#61C5FA]/50 bg-[#2684FF]/[0.16]"
+                        : "border-white/[0.12] bg-white/[0.04] hover:border-[#61C5FA]/35 hover:bg-white/[0.07]"
                     }`}
                   >
-                    <span>
-                      <span className="block text-sm font-medium">
+                    <span className="min-w-0">
+                      <span className="block text-xs font-medium text-white">
                         {item}
                       </span>
-                      <span className="mt-1 block text-xs leading-5 text-[#897A91]">
+
+                      <span className="mt-0.5 block text-[10px] leading-4 text-[#8294AD]">
                         {item === "Video-first"
-                          ? "Prioritize curated video lessons."
+                          ? "Video lessons"
                           : item === "Balanced"
-                            ? "Combine explanations, videos, and practice."
-                            : "Focus on exercises and knowledge checks."}
+                            ? "Mixed learning"
+                            : "Hands-on practice"}
                       </span>
                     </span>
 
                     <span
-                      className={`ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
                         style === item
-                          ? "border-[#D934F7] bg-[#D934F7] text-black"
-                          : "border-white/20"
+                          ? "border-[#61C5FA] bg-[#2684FF] text-white"
+                          : "border-white/20 text-transparent"
                       }`}
                     >
-                      {style === item ? "✓" : ""}
+                      ✓
                     </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="goals"
-                className="mb-3 block text-sm font-medium"
-              >
+            {/* Preferences */}
+            <div
+              id="course-preferences"
+              className="min-w-0 scroll-mt-4"
+            >
+              <label htmlFor="goals" className={labelClass}>
                 Specific goals{" "}
-                <span className="text-[#897A91]">(optional)</span>
+                <span className="font-normal text-[#8294AD]">
+                  (optional)
+                </span>
               </label>
 
               <textarea
@@ -281,177 +335,216 @@ export default function CreateCoursePage() {
                 rows={2}
                 maxLength={500}
                 value={goals}
+                onFocus={() => setActiveStep(3)}
                 onChange={(event) => setGoals(event.target.value)}
                 placeholder="e.g. Build projects and prepare for job interviews"
-                className="w-full resize-y rounded-xl border border-white/10 bg-[#0D0612] px-4 py-3.5 text-sm leading-6 outline-none transition placeholder:text-[#75667C] focus:border-[#D934F7]/60"
+                className={`${inputClass} h-[55px] min-h-[55px] resize-none`}
               />
+
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+                <label className="flex h-[48px] min-w-0 cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/[0.12] bg-white/[0.045] px-3 py-2 backdrop-blur-xl transition hover:border-[#61C5FA]/30 hover:bg-white/[0.07]">
+                  <span className="min-w-0">
+                    <span className="block text-xs font-medium text-white">
+                      Video resources
+                    </span>
+                    <span className="block text-[10px] text-[#8294AD]">
+                      Include video lessons
+                    </span>
+                  </span>
+
+                  <input
+                    type="checkbox"
+                    checked={includeVideos}
+                    onChange={(event) =>
+                      setIncludeVideos(event.target.checked)
+                    }
+                    className="h-4 w-4 shrink-0 accent-[#2684FF]"
+                  />
+                </label>
+
+                <label className="flex h-[48px] min-w-0 cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/[0.12] bg-white/[0.045] px-3 py-2 backdrop-blur-xl transition hover:border-[#61C5FA]/30 hover:bg-white/[0.07]">
+                  <span className="min-w-0">
+                    <span className="block text-xs font-medium text-white">
+                      Quizzes
+                    </span>
+                    <span className="block text-[10px] text-[#8294AD]">
+                      Include knowledge checks
+                    </span>
+                  </span>
+
+                  <input
+                    type="checkbox"
+                    checked={includeQuizzes}
+                    onChange={(event) =>
+                      setIncludeQuizzes(event.target.checked)
+                    }
+                    className="h-4 w-4 shrink-0 accent-[#2684FF]"
+                  />
+                </label>
+
+              </div>
             </div>
 
-            <div className="space-y-4 border-t border-white/[0.08] pt-6">
-              <label className="flex cursor-pointer items-center justify-between gap-4">
-                <span>
-                  <span className="block text-sm font-medium">
-                    Include video resources
-                  </span>
-                  <span className="mt-1 block text-xs text-[#897A91]">
-                    Add relevant YouTube lessons where available.
-                  </span>
-                </span>
-
-                <input
-                  type="checkbox"
-                  checked={includeVideos}
-                  onChange={(event) =>
-                    setIncludeVideos(event.target.checked)
-                  }
-                  className="h-4 w-4 accent-[#D934F7]"
-                />
-              </label>
-
-              <label className="flex cursor-pointer items-center justify-between gap-4">
-                <span>
-                  <span className="block text-sm font-medium">
-                    Include quizzes
-                  </span>
-                  <span className="mt-1 block text-xs text-[#897A91]">
-                    Add knowledge checks to reinforce learning.
-                  </span>
-                </span>
-
-                <input
-                  type="checkbox"
-                  checked={includeQuizzes}
-                  onChange={(event) =>
-                    setIncludeQuizzes(event.target.checked)
-                  }
-                  className="h-4 w-4 accent-[#D934F7]"
-                />
-              </label>
-            </div>
-
+            {/* Error */}
             {error && (
               <p
                 role="alert"
-                className="rounded-xl border border-red-400/20 bg-red-400/[0.08] p-4 text-sm text-red-300"
+                className="rounded-xl border border-red-400/25 bg-red-400/[0.08] p-2.5 text-xs leading-4 text-red-300"
               >
                 {error}
               </p>
             )}
 
-            {message && (
-              <p
-                role="status"
-                className="rounded-xl border border-[#D934F7]/20 bg-[#D934F7]/[0.07] p-4 text-sm leading-6 text-[#E4A1F4]"
-              >
-                {message}
-              </p>
-            )}
-
+            {/* Generate Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#D934F7] px-5 py-4 text-sm font-semibold text-black transition hover:bg-[#E66AFF] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl border border-[#61C5FA]/40 bg-gradient-to-r from-[#155EAB] to-[#2684FF] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(38,132,255,0.22)] transition hover:brightness-110 hover:shadow-[0_8px_30px_rgba(38,132,255,0.32)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Generating your course..." : "Generate my course ↗"}
+              {loading
+                ? "Generating your course..."
+                : "Generate my course ↗"}
             </button>
 
-            <p className="text-center text-xs leading-5 text-[#75667C]">
-              Your selected preferences will guide your personalized course.
-            </p>
           </form>
-        </section>
+        </div>
 
-        <aside className="lg:pt-16">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1C0B25] to-[#0F0714] p-6 sm:p-8">
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#D934F7]/15 blur-[80px]" />
+        {/* RIGHT SIDE - VERTICAL PROGRESS */}
+        <aside className="min-w-0 lg:sticky lg:top-6">
 
-            <div className="relative">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold tracking-[0.18em] text-[#BCF429]">
-                  YOUR COURSE BLUEPRINT
-                </span>
-                <span className="text-xl text-[#D934F7]">✳</span>
-              </div>
+          <div className="rounded-[22px] border border-white/[0.14] bg-[#101722]/50 p-4 shadow-[0_8px_35px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:p-5">
 
-              <h2 className="mt-7 text-2xl font-medium">
-                A path with purpose.
-              </h2>
-
-              <p className="mt-3 text-sm leading-7 text-[#A69BAC]">
-                Your choices will help shape the course structure and
-                learning experience.
+            {/* Progress Heading */}
+            <div className="mb-5">
+              <p className="text-[10px] font-semibold tracking-[0.2em] text-[#61C5FA]">
+                YOUR PROGRESS
               </p>
 
-              <div className="mt-8 space-y-4">
-                {[
-                  {
-                    number: "01",
-                    title: "Foundations",
-                    text: "Understand the essentials",
-                  },
-                  {
-                    number: "02",
-                    title: "Core concepts",
-                    text: "Build knowledge step by step",
-                  },
-                  {
-                    number: "03",
-                    title: "Hands-on practice",
-                    text: "Apply what you learn",
-                  },
-                  {
-                    number: "04",
-                    title: "Knowledge check",
-                    text: "Test your understanding",
-                  },
-                ].map((item, index) => (
-                  <div key={item.number} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <span
-                        className={`flex h-9 w-9 items-center justify-center rounded-xl border text-xs ${
-                          index === 0
-                            ? "border-[#D934F7]/30 bg-[#D934F7]/10 text-[#E4A1F4]"
-                            : "border-white/10 bg-white/[0.03] text-[#897A91]"
-                        }`}
-                      >
-                        {item.number}
-                      </span>
+              <h2 className="mt-1.5 text-lg font-semibold text-white">
+                Course setup
+              </h2>
 
-                      {index !== 3 && (
-                        <div className="my-1 h-5 w-px bg-white/10" />
-                      )}
-                    </div>
+              <p className="mt-1 text-xs text-[#8294AD]">
+                Complete each step to build your course.
+              </p>
+            </div>
 
-                    <div className="pb-3">
-                      <p className="text-sm font-medium">{item.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-[#897A91]">
-                        {item.text}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+            {/* Progress Percentage */}
+            <div className="mb-5">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs text-[#A9BAD3]">
+                  Completion
+                </span>
+
+                <span className="text-sm font-semibold text-[#61C5FA]">
+                  {Math.round(((activeStep + 1) / steps.length) * 100)}%
+                </span>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-[#BCF429]/15 bg-[#BCF429]/[0.05] p-4">
-                <p className="text-sm font-medium text-[#BCF429]">
-                  Designed around your goals
-                </p>
-                <p className="mt-2 text-xs leading-6 text-[#A69BAC]">
-                  Choose your preferences on the left to prepare your
-                  learning plan.
-                </p>
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.09]">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#2684FF] to-[#61C5FA] transition-all duration-500"
+                  style={{
+                    width: `${((activeStep + 1) / steps.length) * 100}%`,
+                  }}
+                />
               </div>
             </div>
-          </div>
 
-          <Link
-            href="/dashboard"
-            className="mt-5 inline-flex text-sm text-[#897A91] transition hover:text-white"
-          >
-            ← Back to your dashboard
-          </Link>
+            {/* Vertical Stepper */}
+            <div className="relative">
+
+              {/* Connecting Line */}
+              <div className="absolute left-[17px] top-5 bottom-5 w-px bg-white/[0.12]" />
+
+              <div
+                className="absolute left-[17px] top-5 w-px bg-gradient-to-b from-[#2684FF] to-[#61C5FA] transition-all duration-500"
+                style={{
+                  height: `${(activeStep / (steps.length - 1)) * 100}%`,
+                  maxHeight: "calc(100% - 40px)",
+                }}
+              />
+
+              <div className="relative space-y-5">
+                {steps.map((step, index) => {
+                  const isActive = activeStep === index;
+                  const isCompleted = activeStep > index;
+
+                  return (
+                    <button
+                      key={step.number}
+                      type="button"
+                      onClick={() =>
+                        navigateToStep(index, step.id)
+                      }
+                      aria-current={isActive ? "step" : undefined}
+                      className="group flex w-full items-center gap-3 text-left"
+                    >
+
+                      {/* Number Circle */}
+                      <span
+                        className={`relative z-10 flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-all duration-300 ${
+                          isCompleted
+                            ? "border-[#2684FF] bg-[#2684FF] text-white shadow-[0_0_15px_rgba(38,132,255,0.25)]"
+                            : isActive
+                              ? "border-[#61C5FA] bg-[#2684FF]/20 text-[#61C5FA] shadow-[0_0_18px_rgba(38,132,255,0.20)]"
+                              : "border-white/20 bg-[#101722] text-[#8294AD] group-hover:border-[#61C5FA]/50"
+                        }`}
+                      >
+                        {isCompleted ? "✓" : step.number}
+                      </span>
+
+                      {/* Step Text */}
+                      <span className="min-w-0">
+                        <span
+                          className={`block text-xs font-semibold transition ${
+                            isActive || isCompleted
+                              ? "text-white"
+                              : "text-[#8294AD] group-hover:text-[#C6D5E8]"
+                          }`}
+                        >
+                          {step.label}
+                        </span>
+
+                        <span
+                          className={`mt-1 block text-[10px] ${
+                            isActive
+                              ? "text-[#61C5FA]"
+                              : isCompleted
+                                ? "text-[#8294AD]"
+                                : "text-[#64758D]"
+                          }`}
+                        >
+                          {isCompleted
+                            ? "Completed"
+                            : isActive
+                              ? "Currently editing"
+                              : "Upcoming step"}
+                        </span>
+                      </span>
+
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bottom Info */}
+            <div className="mt-6 rounded-xl border border-[#61C5FA]/15 bg-[#2684FF]/[0.07] p-3">
+              <p className="text-xs font-medium text-[#C8E9FF]">
+                ✦ AI Personalized Learning
+              </p>
+
+              <p className="mt-1 text-[10px] leading-4 text-[#8294AD]">
+                Your choices help LearnAI create a learning experience around your goals.
+              </p>
+            </div>
+
+          </div>
         </aside>
-      </div>
+
+      </section>
     </main>
   );
 }
