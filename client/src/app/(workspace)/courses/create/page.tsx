@@ -5,16 +5,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
-const levels = ["Beginner", "Intermediate", "Advanced"];
-const durations = ["1 week", "2 weeks", "4 weeks", "8 weeks"];
-const styles = ["Video-first", "Balanced", "Practice-first"];
-
 const steps = [
   { number: "01", label: "Topic", id: "course-topic" },
   { number: "02", label: "Your Level", id: "course-level" },
   { number: "03", label: "Learning Style", id: "course-style" },
   { number: "04", label: "Preferences", id: "course-preferences" },
 ];
+
+const selectedClass =
+  "border-[#D0DFF0] bg-[#D0DFF0] text-[#101722] shadow-[0_2px_12px_rgba(208,223,240,0.12)]";
+
+const unselectedClass =
+  "border-white/[0.12] bg-white/[0.04] text-[#A9BAD3] hover:border-[#D0DFF0]/40 hover:bg-white/[0.08]";
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -23,528 +25,482 @@ export default function CreateCoursePage() {
   const [level, setLevel] = useState("Beginner");
   const [duration, setDuration] = useState("2 weeks");
   const [style, setStyle] = useState("Balanced");
-  const [goals, setGoals] = useState("");
-  const [includeQuizzes, setIncludeQuizzes] = useState(true);
+  const [goal, setGoal] = useState("");
   const [includeVideos, setIncludeVideos] = useState(true);
+  const [includeQuizzes, setIncludeQuizzes] = useState(true);
+
+  const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeStep, setActiveStep] = useState(0);
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-    setError("");
-
-    if (!topic.trim()) {
-      setError("Enter a topic to start building your course.");
-      setActiveStep(0);
-      document.getElementById("course-topic")?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    const durationInDays: Record<string, number> = {
-      "1 week": 7,
-      "2 weeks": 14,
-      "4 weeks": 28,
-      "8 weeks": 56,
-    };
-
-    const learningStyle: Record<string, string> = {
-      "Video-first": "videos",
-      Balanced: "mixed",
-      "Practice-first": "hands_on",
-    };
-
-    try {
-      const response = await apiFetch("/courses/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic: topic.trim(),
-          goal: goals.trim() || "personal knowledge",
-          level: level.toLowerCase(),
-          style: learningStyle[style],
-          duration: durationInDays[duration],
-          includeVideos,
-          includeQuizzes,
-        }),
-      });
-
-      if (response.status === 401) {
-        router.replace("/login");
-        return;
-      }
-
-      if (response.status === 403) {
-        throw new Error(
-          "You don't have permission to generate a course. Please sign in again.",
-        );
-      }
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Course generation failed.",
-        );
-      }
-
-      const course = result.data;
-
-      if (!course?.id) {
-        throw new Error(
-          "The course was generated, but no course ID was returned.",
-        );
-      }
-
-      router.push(`/courses/${course.id}`);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong while generating your course.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function navigateToStep(index: number, id: string) {
+  const navigateToStep = (index: number, id: string) => {
     setActiveStep(index);
 
     document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
-  }
+  };
 
-  const inputClass =
-    "w-full min-w-0 rounded-xl border border-white/[0.13] bg-white/[0.045] px-3.5 py-2 text-sm leading-5 text-white outline-none backdrop-blur-xl transition placeholder:text-[#8294AD] focus:border-[#61C5FA]/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-[#2684FF]/20";
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    setError("");
 
-  const labelClass =
-    "mb-1.5 block text-xs font-medium text-[#E3ECF7] sm:text-sm";
+    if (!topic.trim()) {
+      setError("Please enter a course topic.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const result = await apiFetch("/courses/generate", {
+        method: "POST",
+        body: JSON.stringify({
+          topic: topic.trim(),
+          goal: goal.trim(),
+          level,
+          style,
+          duration,
+          includeVideos,
+          includeQuizzes,
+        }),
+      });
+
+      if (result?.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (result?.status === 403) {
+        setError("You don't have permission to create a course.");
+        return;
+      }
+
+      if (!result?.success || !result?.course?.id) {
+        setError(
+          result?.message ||
+            "Unable to generate your course. Please try again."
+        );
+        return;
+      }
+
+      router.push(`/courses/${result.course.id}`);
+    } catch (err) {
+      console.error("Course generation error:", err);
+
+      setError(
+        "Something went wrong while creating your course. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <main className="relative isolate min-h-full w-full overflow-x-hidden bg-transparent px-3 py-4 text-white sm:px-5 lg:px-6 lg:py-3">
+    <main className="relative isolate h-full min-h-0 w-full overflow-hidden bg-transparent text-white">
 
-      {/* Background Glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      >
-        <div className="absolute -left-40 top-10 h-[350px] w-[350px] rounded-full bg-[#155EAB]/20 blur-[120px]" />
+      {/* RESPONSIVE MAIN LAYOUT */}
 
-        <div className="absolute -right-40 top-[20%] h-[400px] w-[400px] rounded-full bg-[#2684FF]/15 blur-[130px]" />
+      <div className="mx-auto grid h-full min-h-0 w-full max-w-[1440px] grid-cols-1 gap-4 overflow-hidden px-[clamp(12px,2vw,30px)] py-[clamp(12px,2vh,24px)] lg:grid-cols-[minmax(0,1fr)_170px] lg:gap-5">
 
-        <div className="absolute bottom-[-150px] left-[35%] h-[300px] w-[300px] rounded-full bg-[#61C5FA]/10 blur-[120px]" />
-      </div>
+        {/* LEFT SIDE - SCROLLABLE COURSE FORM */}
 
-      {/* Main Layout */}
-      <section className="relative z-10 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-start gap-5 py-2 lg:grid-cols-[minmax(0,1fr)_230px] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="flex h-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-        {/* LEFT SIDE - COURSE FORM */}
-        <div className="min-w-0">
+          {/* Header */}
 
-          {/* Heading */}
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                Create your course
-              </h1>
-
-              <p className="mt-1 text-xs text-[#8294AD] sm:text-sm">
-                Customize your learning experience.
-              </p>
-            </div>
-
-            <span className="shrink-0 rounded-full border border-[#61C5FA]/25 bg-[#2684FF]/10 px-3 py-1.5 text-[10px] font-semibold tracking-wider text-[#8EDAFF] backdrop-blur-xl">
-              AI POWERED
+          <header className="mb-[clamp(12px,2vh,22px)] shrink-0">
+            <span className="text-[clamp(13px,1vw,16px)] font-medium tracking-[-0.04em]">
+              Learn<span className="text-[#8BD6FF]">AI</span>
             </span>
-          </div>
 
-          {/* Glass Form */}
+            <h1 className="mt-1 text-[clamp(20px,2.1vw,30px)] font-semibold leading-tight tracking-tight text-white">
+              Create Your Personalized Course
+            </h1>
+          </header>
+
           <form
             onSubmit={handleSubmit}
-            className="min-w-0 space-y-3 rounded-[22px] border border-white/[0.16] bg-[#101722]/45 p-3.5 shadow-[0_8px_40px_rgba(0,0,0,0.20)] backdrop-blur-2xl backdrop-saturate-150 sm:p-5 lg:space-y-3 lg:p-5"
+            className="mb-3 min-w-0 shrink-0 space-y-[clamp(10px,1.5vh,18px)] rounded-[clamp(16px,1.5vw,22px)] border border-white/[0.16] bg-[#101722]/45 p-[clamp(13px,1.6vw,24px)] shadow-[0_8px_35px_rgba(0,0,0,0.20)] backdrop-blur-2xl backdrop-saturate-150"
           >
 
-            {/* Topic */}
-            <div
-              id="course-topic"
-              className="min-w-0 scroll-mt-4"
-            >
-              <label htmlFor="topic" className={labelClass}>
+            {/* TOPIC */}
+
+            <section id="course-topic" className="scroll-mt-5">
+              <label
+                htmlFor="topic"
+                className="mb-2 block text-[clamp(12px,0.95vw,14px)] font-semibold text-white"
+              >
                 What do you want to learn?
               </label>
 
               <textarea
                 id="topic"
-                required
-                maxLength={300}
-                rows={2}
                 value={topic}
+                onChange={(event) => setTopic(event.target.value)}
                 onFocus={() => setActiveStep(0)}
-                onChange={(event) => {
-                  setTopic(event.target.value);
-                  setError("");
-                }}
-                placeholder="e.g. Full-stack development with React and Node.js"
-                className={`${inputClass} h-[58px] min-h-[58px] resize-none`}
+                placeholder="e.g. Web Development, Python, Digital Marketing..."
+                rows={2}
+                required
+                className="min-h-[clamp(58px,8vh,76px)] w-full resize-none rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 py-2.5 text-[clamp(12px,0.95vw,14px)] text-white outline-none transition placeholder:text-[#8294AD] focus:border-[#D0DFF0]/60 focus:ring-2 focus:ring-[#D0DFF0]/10"
               />
+            </section>
 
-              <p className="mt-0.5 text-right text-[10px] text-[#71839B]">
-                {topic.length}/300
-              </p>
-            </div>
+           
+{/* ANIMATED EXPERIENCE LEVEL SELECTOR */}
 
-            {/* Level and Duration */}
-            <div
-              id="course-level"
-              className="grid min-w-0 scroll-mt-4 grid-cols-1 gap-3 sm:grid-cols-2"
-            >
-              <div className="min-w-0">
-                <p className={labelClass}>
-                  Your current level
-                </p>
+<section id="course-level" className="scroll-mt-5">
+  <p className="mb-3 text-[clamp(12px,0.95vw,14px)] font-semibold text-white">
+    What's your current level?
+  </p>
 
-                <div className="grid grid-cols-3 gap-1.5">
-                  {levels.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => {
-                        setLevel(item);
-                        setActiveStep(1);
-                      }}
-                      aria-pressed={level === item}
-                      className={`flex h-[42px] min-w-0 items-center justify-center whitespace-nowrap rounded-lg border px-1 text-[10px] font-medium transition sm:text-xs ${
-                        level === item
-                          ? "border-[#61C5FA]/50 bg-[#2684FF]/[0.16] text-white"
-                          : "border-white/[0.12] bg-white/[0.04] text-[#A9BAD3] hover:border-[#61C5FA]/35 hover:bg-white/[0.07]"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
+  <div className="relative rounded-full border border-white/[0.12] bg-[#101722]/80 p-1.5">
 
-              <div className="min-w-0">
-                <label htmlFor="duration" className={labelClass}>
-                  Learning timeline
-                </label>
+    {/* Animated selection background */}
+    <div
+      className="absolute bottom-1.5 top-1.5 w-[calc((100%-12px)/3)] rounded-full bg-[#D0DFF0] shadow-[0_2px_15px_rgba(208,223,240,0.18)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      style={{
+        transform: `translateX(${
+          ["Beginner", "Intermediate", "Advanced"].indexOf(level) * 100
+        }%)`,
+      }}
+    />
 
-                <select
-                  id="duration"
-                  value={duration}
-                  onFocus={() => setActiveStep(1)}
-                  onChange={(event) => {
-                    setDuration(event.target.value);
-                    setActiveStep(1);
-                  }}
-                  className={`${inputClass} h-[42px] py-1.5`}
-                >
-                  {durations.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                      className="bg-[#101722]"
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+    <div className="relative z-10 grid grid-cols-3">
+      {["Beginner", "Intermediate", "Advanced"].map((item) => {
+        const isSelected = level === item;
 
-            {/* Learning Style */}
-            <div
-              id="course-style"
-              className="min-w-0 scroll-mt-4"
-            >
-              <p className={labelClass}>
-                How do you learn best?
+        return (
+          <button
+            key={item}
+            type="button"
+            onClick={() => {
+              setLevel(item);
+              setActiveStep(1);
+            }}
+            aria-pressed={isSelected}
+            className={`relative flex min-h-[42px] items-center justify-center rounded-full px-2 text-[clamp(10px,0.9vw,13px)] font-semibold transition-colors duration-300 ${
+              isSelected
+                ? "text-[#101722]"
+                : "text-[#8294AD] hover:text-white"
+            }`}
+          >
+            {item}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+
+  <div className="mt-2 flex items-center justify-between px-1">
+    <span className="text-[10px] text-[#8294AD]">
+      {level === "Beginner"
+        ? "Starting from basics"
+        : level === "Intermediate"
+          ? "Some experience"
+          : "Advanced knowledge"}
+    </span>
+
+    <span className="text-[10px] font-medium text-[#D0DFF0]">
+      {level}
+    </span>
+  </div>
+</section>
+
+
+        {/* GLASSMORPHISM COURSE DURATION */}
+
+<section>
+  <label
+    htmlFor="duration"
+    className="mb-2 block text-[clamp(12px,0.95vw,14px)] font-semibold text-white"
+  >
+    Course duration
+  </label>
+
+  <div className="group relative">
+    <select
+      id="duration"
+      value={duration}
+      onChange={(event) => setDuration(event.target.value)}
+      className="
+        h-[clamp(42px,5vh,50px)] w-full
+        appearance-none rounded-xl
+        border border-white/15
+        bg-white/[0.06]
+        px-4 pr-11
+        text-[clamp(12px,0.95vw,14px)]
+        font-medium text-white
+        shadow-[0_8px_32px_rgba(0,0,0,0.18)]
+        backdrop-blur-xl
+        outline-none
+        transition-all duration-300
+        hover:border-[#D0DFF0]/40
+        hover:bg-white/[0.09]
+        focus:border-[#D0DFF0]/60
+        focus:bg-white/[0.10]
+        focus:shadow-[0_0_20px_rgba(208,223,240,0.10)]
+      "
+    >
+      <option className="bg-[#172232] text-white" value="1 week">
+        1 Week
+      </option>
+      <option className="bg-[#172232] text-white" value="2 weeks">
+        2 Weeks
+      </option>
+      <option className="bg-[#172232] text-white" value="4 weeks">
+        4 Weeks
+      </option>
+      <option className="bg-[#172232] text-white" value="8 weeks">
+        8 Weeks
+      </option>
+    </select>
+
+    {/* Animated dropdown arrow */}
+    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+      <svg
+        className="h-4 w-4 text-[#D0DFF0] transition-transform duration-300 group-focus-within:rotate-180"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
+        <path
+          d="m6 9 6 6 6-6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  </div>
+</section>
+
+            {/* LEARNING STYLE */}
+
+            <section id="course-style" className="scroll-mt-5">
+              <p className="mb-2 text-[clamp(12px,0.95vw,14px)] font-semibold text-white">
+                Choose your learning style
               </p>
 
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {styles.map((item) => (
+                {[
+                  {
+                    name: "Video-first",
+                    description: "Learn through videos",
+                  },
+                  {
+                    name: "Balanced",
+                    description: "Videos, reading and practice",
+                  },
+                  {
+                    name: "Practice-first",
+                    description: "Learn by doing projects",
+                  },
+                ].map((item) => (
                   <button
-                    key={item}
+                    key={item.name}
                     type="button"
                     onClick={() => {
-                      setStyle(item);
+                      setStyle(item.name);
                       setActiveStep(2);
                     }}
-                    aria-pressed={style === item}
-                    className={`flex h-[62px] min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left backdrop-blur-xl transition ${
-                      style === item
-                        ? "border-[#61C5FA]/50 bg-[#2684FF]/[0.16]"
-                        : "border-white/[0.12] bg-white/[0.04] hover:border-[#61C5FA]/35 hover:bg-white/[0.07]"
+                    className={`flex min-h-[clamp(58px,8vh,76px)] flex-col items-start justify-center rounded-xl border px-3 py-2 text-left transition-all duration-200 ${
+                      style === item.name
+                        ? selectedClass
+                        : unselectedClass
                     }`}
                   >
-                    <span className="min-w-0">
-                      <span className="block text-xs font-medium text-white">
-                        {item}
-                      </span>
-
-                      <span className="mt-0.5 block text-[10px] leading-4 text-[#8294AD]">
-                        {item === "Video-first"
-                          ? "Video lessons"
-                          : item === "Balanced"
-                            ? "Mixed learning"
-                            : "Hands-on practice"}
-                      </span>
+                    <span className="text-[clamp(11px,0.9vw,13px)] font-semibold">
+                      {item.name}
                     </span>
 
                     <span
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
-                        style === item
-                          ? "border-[#61C5FA] bg-[#2684FF] text-white"
-                          : "border-white/20 text-transparent"
+                      className={`mt-1 text-[clamp(9px,0.75vw,11px)] ${
+                        style === item.name
+                          ? "text-[#43556B]"
+                          : "text-[#8294AD]"
                       }`}
                     >
-                      ✓
+                      {item.description}
                     </span>
                   </button>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {/* Preferences */}
-            <div
-              id="course-preferences"
-              className="min-w-0 scroll-mt-4"
-            >
-              <label htmlFor="goals" className={labelClass}>
-                Specific goals{" "}
-                <span className="font-normal text-[#8294AD]">
-                  (optional)
+            {/* LEARNING GOAL */}
+
+            <section>
+              <label
+                htmlFor="goal"
+                className="mb-2 block text-[clamp(12px,0.95vw,14px)] font-semibold text-white"
+              >
+                What is your learning goal?
+
+                <span className="ml-2 font-normal text-[#8294AD]">
+                  (Optional)
                 </span>
               </label>
 
               <textarea
-                id="goals"
+                id="goal"
+                value={goal}
+                onChange={(event) => setGoal(event.target.value)}
+                placeholder="e.g. I want to build real-world projects and prepare for a job..."
                 rows={2}
-                maxLength={500}
-                value={goals}
-                onFocus={() => setActiveStep(3)}
-                onChange={(event) => setGoals(event.target.value)}
-                placeholder="e.g. Build projects and prepare for job interviews"
-                className={`${inputClass} h-[55px] min-h-[55px] resize-none`}
+                className="min-h-[clamp(58px,7vh,70px)] w-full resize-none rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 py-2.5 text-[clamp(12px,0.95vw,14px)] text-white outline-none transition placeholder:text-[#8294AD] focus:border-[#D0DFF0]/60 focus:ring-2 focus:ring-[#D0DFF0]/10"
               />
+            </section>
 
-              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {/* PREFERENCES */}
 
-                <label className="flex h-[48px] min-w-0 cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/[0.12] bg-white/[0.045] px-3 py-2 backdrop-blur-xl transition hover:border-[#61C5FA]/30 hover:bg-white/[0.07]">
-                  <span className="min-w-0">
-                    <span className="block text-xs font-medium text-white">
-                      Video resources
-                    </span>
-                    <span className="block text-[10px] text-[#8294AD]">
-                      Include video lessons
-                    </span>
-                  </span>
+            <section
+              id="course-preferences"
+              className="scroll-mt-5"
+            >
+              <p className="mb-2 text-[clamp(12px,0.95vw,14px)] font-semibold text-white">
+                Course preferences
+              </p>
 
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+                <label className="flex min-h-[clamp(42px,5.5vh,54px)] cursor-pointer items-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 py-2 transition hover:bg-white/[0.07]">
                   <input
                     type="checkbox"
                     checked={includeVideos}
                     onChange={(event) =>
                       setIncludeVideos(event.target.checked)
                     }
-                    className="h-4 w-4 shrink-0 accent-[#2684FF]"
+                    className="h-4 w-4 shrink-0 accent-[#D0DFF0]"
                   />
+
+                  <span className="text-[clamp(11px,0.85vw,13px)] text-[#A9BAD3]">
+                    Include learning videos
+                  </span>
                 </label>
 
-                <label className="flex h-[48px] min-w-0 cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/[0.12] bg-white/[0.045] px-3 py-2 backdrop-blur-xl transition hover:border-[#61C5FA]/30 hover:bg-white/[0.07]">
-                  <span className="min-w-0">
-                    <span className="block text-xs font-medium text-white">
-                      Quizzes
-                    </span>
-                    <span className="block text-[10px] text-[#8294AD]">
-                      Include knowledge checks
-                    </span>
-                  </span>
-
+                <label className="flex min-h-[clamp(42px,5.5vh,54px)] cursor-pointer items-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 py-2 transition hover:bg-white/[0.07]">
                   <input
                     type="checkbox"
                     checked={includeQuizzes}
                     onChange={(event) =>
                       setIncludeQuizzes(event.target.checked)
                     }
-                    className="h-4 w-4 shrink-0 accent-[#2684FF]"
+                    className="h-4 w-4 shrink-0 accent-[#D0DFF0]"
                   />
+
+                  <span className="text-[clamp(11px,0.85vw,13px)] text-[#A9BAD3]">
+                    Include quizzes
+                  </span>
                 </label>
 
               </div>
-            </div>
+            </section>
 
-            {/* Error */}
+            {/* ERROR */}
+
             {error && (
-              <p
+              <div
                 role="alert"
-                className="rounded-xl border border-red-400/25 bg-red-400/[0.08] p-2.5 text-xs leading-4 text-red-300"
+                className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-[clamp(11px,0.85vw,13px)] text-red-300"
               >
                 {error}
-              </p>
+              </div>
             )}
 
-            {/* Generate Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl border border-[#61C5FA]/40 bg-gradient-to-r from-[#155EAB] to-[#2684FF] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(38,132,255,0.22)] transition hover:brightness-110 hover:shadow-[0_8px_30px_rgba(38,132,255,0.32)] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading
-                ? "Generating your course..."
-                : "Generate my course ↗"}
-            </button>
+            {/* CREATE COURSE BUTTON */}
+
+            <div className="flex justify-start pt-1">
+           <button
+  type="submit"
+  disabled={loading}
+  className="liquid-metal-button w-fit rounded-full text-[9px] font-medium text-white transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4388FF] disabled:cursor-not-allowed disabled:opacity-50 sm:text-[10px]"
+>
+  <span
+    className="liquid-metal-button__shine"
+    aria-hidden="true"
+  />
+
+  <span className="liquid-metal-button__content gap-1.5 px-5 py-2.5 sm:px-6">
+    {loading ? "Generating..." : "Create Course"}
+    <span aria-hidden="true">↗</span>
+  </span>
+</button>
+            </div>
 
           </form>
         </div>
 
-        {/* RIGHT SIDE - VERTICAL PROGRESS */}
-        <aside className="min-w-0 lg:sticky lg:top-6">
+        {/* RIGHT SIDE - NARROW STATIONARY PROGRESS */}
 
-          <div className="rounded-[22px] border border-white/[0.14] bg-[#101722]/50 p-4 shadow-[0_8px_35px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:p-5">
+        <aside className="hidden min-w-0 lg:flex lg:h-full lg:w-[170px] lg:items-center lg:justify-center">
 
-            {/* Progress Heading */}
-            <div className="mb-5">
-              <p className="text-[10px] font-semibold tracking-[0.2em] text-[#61C5FA]">
-                YOUR PROGRESS
-              </p>
+          <div className="relative h-[min(72vh,680px)] min-h-[420px] w-full">
 
-              <h2 className="mt-1.5 text-lg font-semibold text-white">
-                Course setup
-              </h2>
+            {/* BACKGROUND LINE */}
 
-              <p className="mt-1 text-xs text-[#8294AD]">
-                Complete each step to build your course.
-              </p>
-            </div>
+            <div className="absolute bottom-4 left-[15px] top-4 w-[2px] rounded-full bg-white/15" />
 
-            {/* Progress Percentage */}
-            <div className="mb-5">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-[#A9BAD3]">
-                  Completion
-                </span>
+            {/* ACTIVE PROGRESS LINE */}
 
-                <span className="text-sm font-semibold text-[#61C5FA]">
-                  {Math.round(((activeStep + 1) / steps.length) * 100)}%
-                </span>
-              </div>
-
-              <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.09]">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#2684FF] to-[#61C5FA] transition-all duration-500"
-                  style={{
-                    width: `${((activeStep + 1) / steps.length) * 100}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Vertical Stepper */}
-            <div className="relative">
-
-              {/* Connecting Line */}
-              <div className="absolute left-[17px] top-5 bottom-5 w-px bg-white/[0.12]" />
-
+            <div className="absolute bottom-4 left-[15px] top-4 w-[2px] overflow-hidden rounded-full">
               <div
-                className="absolute left-[17px] top-5 w-px bg-gradient-to-b from-[#2684FF] to-[#61C5FA] transition-all duration-500"
+                className="w-full rounded-full bg-[#D0DFF0] transition-all duration-500"
                 style={{
                   height: `${(activeStep / (steps.length - 1)) * 100}%`,
-                  maxHeight: "calc(100% - 40px)",
                 }}
               />
+            </div>
 
-              <div className="relative space-y-5">
-                {steps.map((step, index) => {
-                  const isActive = activeStep === index;
-                  const isCompleted = activeStep > index;
+            {/* PROGRESS STEPS */}
 
-                  return (
-                    <button
-                      key={step.number}
-                      type="button"
-                      onClick={() =>
-                        navigateToStep(index, step.id)
-                      }
-                      aria-current={isActive ? "step" : undefined}
-                      className="group flex w-full items-center gap-3 text-left"
+            <div className="relative flex h-full flex-col justify-between">
+
+              {steps.map((step, index) => {
+                const isActive = activeStep === index;
+                const isCompleted = activeStep > index;
+
+                return (
+                  <button
+                    key={step.number}
+                    type="button"
+                    onClick={() =>
+                      navigateToStep(index, step.id)
+                    }
+                    aria-current={isActive ? "step" : undefined}
+                    className="group flex items-center gap-3 text-left"
+                  >
+                    <span
+                      className={`relative z-10 flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-all duration-300 ${
+                        isActive || isCompleted
+                          ? "border-[#D0DFF0] bg-[#D0DFF0] text-[#101722]"
+                          : "border-white/20 bg-[#101722] text-[#8294AD] group-hover:border-[#D0DFF0]/60"
+                      }`}
                     >
+                      {isCompleted ? "✓" : step.number}
+                    </span>
 
-                      {/* Number Circle */}
-                      <span
-                        className={`relative z-10 flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-all duration-300 ${
-                          isCompleted
-                            ? "border-[#2684FF] bg-[#2684FF] text-white shadow-[0_0_15px_rgba(38,132,255,0.25)]"
-                            : isActive
-                              ? "border-[#61C5FA] bg-[#2684FF]/20 text-[#61C5FA] shadow-[0_0_18px_rgba(38,132,255,0.20)]"
-                              : "border-white/20 bg-[#101722] text-[#8294AD] group-hover:border-[#61C5FA]/50"
-                        }`}
-                      >
-                        {isCompleted ? "✓" : step.number}
-                      </span>
+                    <span
+                      className={`whitespace-nowrap text-[clamp(10px,0.8vw,12px)] font-medium transition-colors ${
+                        isActive || isCompleted
+                          ? "text-[#D0DFF0]"
+                          : "text-[#8294AD] group-hover:text-white"
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                  </button>
+                );
+              })}
 
-                      {/* Step Text */}
-                      <span className="min-w-0">
-                        <span
-                          className={`block text-xs font-semibold transition ${
-                            isActive || isCompleted
-                              ? "text-white"
-                              : "text-[#8294AD] group-hover:text-[#C6D5E8]"
-                          }`}
-                        >
-                          {step.label}
-                        </span>
-
-                        <span
-                          className={`mt-1 block text-[10px] ${
-                            isActive
-                              ? "text-[#61C5FA]"
-                              : isCompleted
-                                ? "text-[#8294AD]"
-                                : "text-[#64758D]"
-                          }`}
-                        >
-                          {isCompleted
-                            ? "Completed"
-                            : isActive
-                              ? "Currently editing"
-                              : "Upcoming step"}
-                        </span>
-                      </span>
-
-                    </button>
-                  );
-                })}
-              </div>
             </div>
-
-            {/* Bottom Info */}
-            <div className="mt-6 rounded-xl border border-[#61C5FA]/15 bg-[#2684FF]/[0.07] p-3">
-              <p className="text-xs font-medium text-[#C8E9FF]">
-                ✦ AI Personalized Learning
-              </p>
-
-              <p className="mt-1 text-[10px] leading-4 text-[#8294AD]">
-                Your choices help LearnAI create a learning experience around your goals.
-              </p>
-            </div>
-
           </div>
         </aside>
 
-      </section>
+      </div>
     </main>
   );
 }
