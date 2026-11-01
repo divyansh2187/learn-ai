@@ -4,6 +4,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  GraduationCap,
+  Layers3,
+  Play,
+} from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
 interface Lesson {
@@ -29,6 +39,19 @@ interface Course {
   difficulty: string;
   estimatedMinutes: number;
   modules: Module[];
+}
+
+const glass =
+  "rounded-[22px] border border-white/[0.18] bg-white/[0.07] backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.18)] ring-1 ring-inset ring-white/[0.04]";
+
+function formatDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+
+  if (hours === 0) return `${remaining} minutes`;
+  if (remaining === 0) return `${hours} hours`;
+
+  return `${hours}h ${remaining}m`;
 }
 
 export default function CourseDetailPage() {
@@ -101,33 +124,51 @@ export default function CourseDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#09030E] p-8 text-white">
-        Loading your course...
+      <main className="min-h-screen px-5 py-10 text-white sm:px-10">
+        <div className="mx-auto w-full max-w-none">
+          <div className={`${glass} animate-pulse p-8`}>
+            <div className="h-3 w-28 rounded bg-white/10" />
+            <div className="mt-7 h-9 w-2/3 rounded-lg bg-white/10" />
+            <div className="mt-4 h-4 w-1/2 rounded bg-white/10" />
+            <div className="mt-8 h-20 rounded-xl bg-white/10" />
+          </div>
+
+          <p className="mt-5 text-sm text-[#F1F5F9]">
+            Loading your learning path...
+          </p>
+        </div>
       </main>
     );
   }
 
   if (error || !course) {
     return (
-      <main className="min-h-screen bg-[#09030E] p-8 text-white">
-        <p className="text-red-400">
-          {error || "Course not found"}
-        </p>
+      <main className="min-h-screen px-5 py-10 text-white sm:px-10">
+        <div className={`${glass} mx-auto max-w-2xl p-8`}>
+          <h1 className="text-xl font-semibold">
+            Unable to open course
+          </h1>
 
-        <Link
-          href="/dashboard"
-          className="mt-4 inline-block text-[#D934F7]"
-        >
-          ← Back to dashboard
-        </Link>
+          <p className="mt-3 text-sm text-red-300">
+            {error || "Course not found"}
+          </p>
 
-        <div>
           <Link
-            href="/courses/create"
-            className="mt-3 inline-block text-[#A69BAC] hover:text-white"
+            href="/dashboard"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#2684FF] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#377FE4]"
           >
-            Create another course →
+            <ArrowLeft size={16} />
+            Back to dashboard
           </Link>
+
+          <div>
+            <Link
+              href="/courses/create"
+              className="mt-4 inline-block text-sm text-[#F1F5F9] transition hover:text-white"
+            >
+              Create another course →
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -138,117 +179,224 @@ export default function CourseDetailPage() {
     0,
   );
 
+  const totalModules = course.modules.length;
+
   return (
-    <main className="min-h-screen bg-[#09030E] px-5 py-10 text-white sm:px-10">
-      <div className="mx-auto max-w-5xl">
-        <Link
-          href="/dashboard"
-          className="text-sm text-[#A69BAC] hover:text-white"
-        >
-          ← Back to dashboard
-        </Link>
+    <main className="relative isolate min-h-screen overflow-hidden px-4 py-6 text-white sm:px-7 sm:py-9">
+      {/* Background lighting */}
 
-        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-10">
-          <div className="mb-5 flex flex-wrap gap-3">
-            <span className="rounded-full bg-[#D934F7]/15 px-3 py-1 text-xs text-[#E66AFF]">
-              {course.difficulty}
-            </span>
+      <div className="mx-auto w-full max-w-none">
 
-            <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-[#A69BAC]">
-              {course.modules.length} modules
-            </span>
+        {/* TOP NAVIGATION */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 text-sm text-[#F1F5F9] transition hover:text-white"
+          >
+            <ArrowLeft size={16} />
+            Back to My Courses
+          </Link>
 
-            <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-[#A69BAC]">
-              {totalLessons} lessons
-            </span>
-          </div>
+         
+         
+        </div>
 
-          <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-            {course.title}
-          </h1>
+        {/* COURSE OVERVIEW */}
+        <section className={`${glass} relative mt-8 overflow-hidden p-6 sm:p-9`}>
+          {/* Glass reflection */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/[0.04] bg-gradient-to-br from-white/[0.07] via-transparent to-sky-300/[0.04]"
+          />
 
-          {course.subtitle && (
-            <p className="mt-4 text-lg text-[#D934F7]">
-              {course.subtitle}
-            </p>
-          )}
+          <div className="relative z-10">
 
-          {course.description && (
-            <p className="mt-4 max-w-3xl leading-7 text-[#A69BAC]">
-              {course.description}
-            </p>
-          )}
+         
 
-          <div className="mt-6 text-sm text-[#A69BAC]">
-            Estimated learning time:{" "}
-            {Math.floor(course.estimatedMinutes / 60)} hours{" "}
-            {course.estimatedMinutes % 60} minutes
+            {/* TITLE */}
+            <h1 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
+              {course.title}
+            </h1>
+
+            {course.subtitle && (
+              <p className="mt-4 max-w-2xl text-base leading-7 font-semibold text-[#DDF4FF]">
+                {course.subtitle}
+              </p>
+            )}
+
+            {course.description && (
+              <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-[#F1F5F9]">
+                {course.description}
+              </p>
+            )}
+
+            {/* COURSE STATISTICS */}
+            <div className="mt-8 grid grid-cols-1 gap-3 border-t border-white/10 pt-6 sm:grid-cols-3">
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2684FF]/15 text-[#BDEAFF]">
+                  <Layers3 size={19} />
+                </div>
+
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    {totalModules}
+                  </p>
+                  <p className="text-xs font-medium text-[#F1F5F9]">
+                    Learning modules
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2684FF]/15 text-[#BDEAFF]">
+                  <BookOpen size={19} />
+                </div>
+
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    {totalLessons}
+                  </p>
+                  <p className="text-xs font-medium text-[#F1F5F9]">
+                    Total lessons
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2684FF]/15 text-[#BDEAFF]">
+                  <Clock3 size={19} />
+                </div>
+
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    {formatDuration(course.estimatedMinutes)}
+                  </p>
+                  <p className="text-xs font-medium text-[#F1F5F9]">
+                    Estimated duration
+                  </p>
+                </div>
+              </div>
+
+            </div>
           </div>
         </section>
 
+        {/* LEARNING PATH */}
         <section className="mt-10">
-          <h2 className="mb-5 text-2xl font-semibold">
-            Your learning path
-          </h2>
 
-          <div className="space-y-5">
+          <div className="mb-6 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#61C5FA]">
+                Course curriculum
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+                Your learning path
+              </h2>
+
+              <p className="mt-1 text-xs text-[#F1F5F9]">
+                Follow each module and progress through your course.
+              </p>
+            </div>
+
+            <span className="hidden text-xs text-[#F1F5F9] sm:block">
+              {totalModules} sections
+            </span>
+          </div>
+
+          {/* MODULES */}
+          <div className="space-y-4">
             {course.modules.map((module, index) => (
               <article
                 key={module.id}
-                className="rounded-2xl border border-white/10 bg-[#140B1B] p-5 sm:p-7"
+                className={`${glass} relative overflow-hidden p-5 transition duration-200 hover:border-white/[0.24] sm:p-6`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#D934F7]/15 font-semibold text-[#E66AFF]">
-                    {index + 1}
-                  </div>
+                {/* Glass reflection */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/[0.04] bg-gradient-to-br from-white/[0.06] via-transparent to-sky-300/[0.03]"
+                />
 
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-semibold">
-                      {module.title}
-                    </h3>
+                <div className="relative z-10">
 
-                    {module.description && (
-                      <p className="mt-2 text-sm leading-6 text-[#A69BAC]">
-                        {module.description}
+                  {/* MODULE HEADER */}
+                  <div className="flex items-start gap-4">
+
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#61C5FA]/20 bg-[#2684FF]/10 text-sm font-semibold text-[#BDEAFF]">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-semibold text-white sm:text-lg">
+                        {module.title}
+                      </h3>
+
+                      {module.description && (
+                        <p className="mt-2 text-sm font-medium leading-6 text-[#F1F5F9]">
+                          {module.description}
+                        </p>
+                      )}
+
+                      <p className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#F1F5F9]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <BookOpen size={13} />
+                          {module.lessons.length} lessons
+                        </span>
+
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock3 size={13} />
+                          {formatDuration(module.estimatedMinutes)}
+                        </span>
                       </p>
-                    )}
-
-                    <p className="mt-2 text-xs text-[#A69BAC]">
-                      {module.lessons.length} lessons ·{" "}
-                      {module.estimatedMinutes} minutes
-                    </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-5 space-y-3">
-                  {module.lessons.map((lesson, lessonIndex) => (
-                    <Link
-                      key={lesson.id}
-                      href={`/courses/${course.id}/lessons/${lesson.id}`}
-                      className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 transition-all duration-200 hover:border-[#D934F7]/50 hover:bg-[#D934F7]/[0.07]"
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-sm text-[#A69BAC]">
-                        {lessonIndex + 1}
-                      </span>
+                  {/* LESSON LIST */}
+                  <div className="mt-5 border-t border-white/[0.08] pt-3">
+                    {module.lessons.map((lesson, lessonIndex) => (
+                      <Link
+                        key={lesson.id}
+                        href={`/courses/${course.id}/lessons/${lesson.id}`}
+                        className="group flex items-center gap-3 rounded-xl px-3 py-3.5 transition duration-200 hover:bg-[#D1E0F1] hover:shadow-sm"
+                      >
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.08] text-xs font-semibold text-[#F1F5F9] transition group-hover:bg-white/70 group-hover:text-black">
+                          {String(lessonIndex + 1).padStart(2, "0")}
+                        </div>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium">
-                          {lesson.title}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-white transition group-hover:text-black">
+                            {lesson.title}
+                          </p>
 
-                        <p className="mt-1 text-xs text-[#A69BAC]">
-                          {lesson.estimatedMinutes} min
-                        </p>
-                      </div>
+                          <p className="mt-1 text-xs font-medium text-[#E2E8F0] transition-colors group-hover:text-black">
+                            {lesson.estimatedMinutes} min
+                          </p>
+                        </div>
 
-                      <span className="text-[#D934F7]">→</span>
-                    </Link>
-                  ))}
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] text-[#CBD5E1] transition group-hover:border-black/15 group-hover:bg-white/70 group-hover:text-black">
+                          <ArrowRight size={15} />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         </section>
+
+        {/* BOTTOM NAVIGATION */}
+        <div className="mt-10 border-t border-white/[0.08] py-6">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 text-sm text-[#F1F5F9] transition hover:text-white"
+          >
+            <ArrowLeft size={15} />
+            Back to My Courses
+          </Link>
+        </div>
+
       </div>
     </main>
   );

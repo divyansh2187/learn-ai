@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import NotesPanel from "./NotesPanel";
-import BookmarkButton from "./BookmarkButton";
 import FlashcardsPanel from "./FlashcardsPanel";
 
 type DataRecord = Record<string, unknown>;
@@ -29,6 +29,20 @@ type LessonProgressData = {
   progress: number;
   completed: boolean;
   timeSpent: number;
+};
+
+const glassSurface =
+  "border border-white/[0.16] bg-white/[0.07] " +
+  "backdrop-blur-2xl backdrop-saturate-150 " +
+  "shadow-[0_8px_32px_rgba(0,0,0,0.18)] " +
+  "ring-1 ring-inset ring-white/[0.04]";
+
+const colors = {
+  primary: "#61C5FA",
+  highlight: "#BDEAFF",
+  text: "#FFFFFF",
+  description: "#E2E8F0",
+  muted: "#CBD5E1",
 };
 
 function asRecord(value: unknown): DataRecord | null {
@@ -77,8 +91,6 @@ function getOptions(value: unknown): string[] {
 
 function normalizeAnswer(value: unknown): string {
   const answer = getText(value).trim();
-
-  // Supports stored answers such as "B" and "B. Correct answer".
   const letter = answer.match(/^([A-Z])(?:[.)\s:]|$)/i);
 
   return letter ? letter[1].toUpperCase() : answer.toLowerCase();
@@ -125,12 +137,16 @@ function formatLabel(key: string): string {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+/* -------------------------------------------------------
+   LESSON CONTENT
+------------------------------------------------------- */
+
 function RenderContent({ value }: { value: unknown }) {
   if (value == null || value === "") return null;
 
   if (typeof value === "string" || typeof value === "number") {
     return (
-      <p className="whitespace-pre-wrap leading-7 text-[#C8BBD0]">
+      <p className="whitespace-pre-wrap text-sm font-medium leading-7 text-[#E2E8F0]">
         {String(value)}
       </p>
     );
@@ -141,7 +157,8 @@ function RenderContent({ value }: { value: unknown }) {
       <ul className="space-y-3">
         {value.map((item, index) => (
           <li key={index} className="flex items-start gap-3">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#D934F7]" />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#61C5FA]" />
+
             <div className="min-w-0 flex-1">
               <RenderContent value={item} />
             </div>
@@ -187,7 +204,6 @@ function RenderContent({ value }: { value: unknown }) {
       {remaining.map(([key, item]) => {
         const label = formatLabel(key);
 
-        // Don't display implementation metadata as lesson content.
         if (
           [
             "id",
@@ -203,7 +219,7 @@ function RenderContent({ value }: { value: unknown }) {
 
         return (
           <div key={key} className="space-y-2">
-            <p className="text-sm font-medium text-[#E7DDEA]">{label}</p>
+            <p className="text-sm font-semibold text-[#F1F5F9]">{label}</p>
             <RenderContent value={item} />
           </div>
         );
@@ -211,6 +227,10 @@ function RenderContent({ value }: { value: unknown }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------
+   REUSABLE GLASS SECTION
+------------------------------------------------------- */
 
 function Section({
   number,
@@ -224,9 +244,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-white/[0.09] bg-[#120A18] p-5 sm:p-8">
+    <section className={`${glassSurface} rounded-3xl p-5 sm:p-8`}>
       <div className="mb-6 flex items-start gap-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#D934F7]/20 bg-[#D934F7]/10 text-sm font-semibold text-[#E66AFF]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#61C5FA]/20 bg-[#61C5FA]/[0.09] text-sm font-semibold text-[#BDEAFF]">
           {number}
         </span>
 
@@ -234,8 +254,9 @@ function Section({
           <h2 className="text-xl font-semibold tracking-tight text-white">
             {title}
           </h2>
+
           {description && (
-            <p className="mt-1 text-sm leading-6 text-[#95859E]">
+            <p className="mt-1 text-sm font-medium leading-6 text-[#CBD5E1]">
               {description}
             </p>
           )}
@@ -247,11 +268,16 @@ function Section({
   );
 }
 
+/* -------------------------------------------------------
+   CODE EXAMPLE
+------------------------------------------------------- */
+
 function CodeExample({ value }: { value: unknown }) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
   const record = asRecord(value);
+
   const code =
     typeof value === "string"
       ? value
@@ -284,39 +310,44 @@ function CodeExample({ value }: { value: unknown }) {
   const canPreview = ["html", "htm"].includes(language);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0A060D]">
+    <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-[#091321] shadow-lg">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-white/[0.025] px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[#F87171]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#FBBF24]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#BCF429]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#61C5FA]" />
           </span>
-          <span className="text-sm font-medium text-[#D5C9DA]">{title}</span>
+
+          <span className="text-sm font-medium text-[#F1F5F9]">
+            {title}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-md bg-white/[0.06] px-2 py-1 text-xs uppercase tracking-wide text-[#A69BAC]">
+          <span className="rounded-md bg-white/[0.06] px-2 py-1 text-xs uppercase tracking-wide text-[#CBD5E1]">
             {language}
           </span>
 
           <button
             type="button"
             onClick={copyCode}
-            className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-[#D5C9DA] transition hover:border-[#D934F7]/40 hover:text-white"
+            className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-[#F1F5F9] transition hover:border-[#61C5FA]/40 hover:bg-white/[0.06] hover:text-white"
           >
             {copied ? "✓ Copied" : "Copy"}
           </button>
         </div>
       </div>
 
-      <pre className="overflow-x-auto p-5 text-sm leading-7 text-[#D8C7E4]">
+      <pre className="overflow-x-auto p-5 text-sm leading-7 text-[#E2E8F0]">
         <code>{code || "No code was provided for this example."}</code>
       </pre>
 
       {explanation && (
         <div className="border-t border-white/[0.07] px-5 py-4">
-          <p className="text-sm leading-7 text-[#A69BAC]">{explanation}</p>
+          <p className="text-sm font-medium leading-7 text-[#CBD5E1]">
+            {explanation}
+          </p>
         </div>
       )}
 
@@ -325,7 +356,7 @@ function CodeExample({ value }: { value: unknown }) {
           <button
             type="button"
             onClick={() => setShowPreview((current) => !current)}
-            className="px-5 py-3 text-sm font-medium text-[#D934F7] transition hover:text-[#E66AFF]"
+            className="px-5 py-3 text-sm font-medium text-[#61C5FA] transition hover:text-[#BDEAFF]"
           >
             {showPreview ? "Hide preview ↑" : "▶ Run HTML preview"}
           </button>
@@ -346,6 +377,10 @@ function CodeExample({ value }: { value: unknown }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------
+   QUIZ CARD
+------------------------------------------------------- */
 
 function QuizCard({
   question,
@@ -370,18 +405,20 @@ function QuizCard({
   const options = getOptions(question.options ?? question.choices);
 
   return (
-    <article className="rounded-2xl border border-white/[0.08] bg-[#0E0813] p-5 sm:p-6">
+    <article className="rounded-2xl border border-white/[0.18] bg-slate-950/50 p-5 text-white shadow-[0_12px_36px_rgba(0,0,0,0.25)] backdrop-blur-2xl backdrop-saturate-150 sm:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <span className="rounded-lg bg-[#D934F7]/10 px-3 py-1.5 text-xs font-semibold text-[#E66AFF]">
+        <span className="rounded-lg border border-[#61C5FA]/15 bg-[#61C5FA]/[0.09] px-3 py-1.5 text-xs font-semibold text-[#BDEAFF]">
           QUESTION {index + 1}
         </span>
 
-        <span className="text-xs text-[#95859E]">
+        <span className="text-xs font-medium text-[#CBD5E1]">
           {getText(question.points, "1")} point(s)
         </span>
       </div>
 
-      <h3 className="text-base font-medium leading-7 text-white">{prompt}</h3>
+      <h3 className="text-base font-semibold leading-7 text-white">
+        {prompt}
+      </h3>
 
       {options.length > 0 ? (
         <div className="mt-5 space-y-3">
@@ -395,33 +432,43 @@ function QuizCard({
                 type="button"
                 disabled={disabled}
                 onClick={() => onSelect(questionId, letter)}
-                className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition disabled:cursor-default ${
+                className={`group flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors duration-200 disabled:cursor-default ${
                   active
-                    ? "border-[#D934F7]/60 bg-[#D934F7]/10"
-                    : "border-white/10 bg-white/[0.025] hover:border-[#D934F7]/40"
+                    ? "border-[#61C5FA]/50 bg-[#61C5FA]/[0.10]"
+                    : "border-white/[0.16] bg-slate-950/45 backdrop-blur-xl hover:!border-[#E2EEFB] hover:!bg-[#E2EEFB] hover:!text-black"
                 }`}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 text-xs font-semibold text-[#C8BBD0]">
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold ${
+                    active
+                      ? "border-[#61C5FA]/40 bg-[#61C5FA]/10 text-[#BDEAFF]"
+                      : "border-white/10 text-[#E2E8F0] group-hover:!border-black/20 group-hover:!text-black"
+                  }`}
+                >
                   {letter}
                 </span>
 
-                <span className="flex-1 text-sm leading-6 text-[#D5C9DA]">
+                <span className="flex-1 text-sm font-medium leading-6 text-[#F1F5F9] group-hover:!text-black">
                   {optionText(option)}
                 </span>
 
-                {active && <span className="text-[#E66AFF]">✓</span>}
+                {active && <span className="text-[#BDEAFF] group-hover:!text-black">✓</span>}
               </button>
             );
           })}
         </div>
       ) : (
-        <p className="mt-4 text-sm text-[#95859E]">
+        <p className="mt-4 text-sm text-[#CBD5E1]">
           This question has no selectable options yet.
         </p>
       )}
     </article>
   );
 }
+
+/* -------------------------------------------------------
+   EXERCISE CARD
+------------------------------------------------------- */
 
 function ExerciseCard({
   exercise,
@@ -524,21 +571,24 @@ function ExerciseCard({
   }
 
   return (
-    <article className="rounded-2xl border border-white/[0.08] bg-[#0E0813] p-5 sm:p-6">
+    <article className="rounded-2xl border border-white/[0.18] bg-slate-950/50 p-5 text-white shadow-[0_12px_36px_rgba(0,0,0,0.25)] backdrop-blur-2xl backdrop-saturate-150 sm:p-6">
       <div className="flex items-start gap-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#BCF429]/10 text-lg text-[#BCF429]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#61C5FA]/15 bg-[#61C5FA]/[0.09] text-lg text-[#BDEAFF]">
           ✦
         </span>
 
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-white">{title}</h3>
-          <p className="mt-2 text-xs uppercase tracking-wider text-[#95859E]">
+
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-[#CBD5E1]">
             {getText(exercise.difficulty, "PRACTICE")}
           </p>
         </div>
 
         {done && (
-          <span className="text-xs font-medium text-[#BCF429]">✓ Done</span>
+          <span className="text-xs font-semibold text-[#61C5FA]">
+            ✓ Done
+          </span>
         )}
       </div>
 
@@ -551,13 +601,13 @@ function ExerciseCard({
           <button
             type="button"
             onClick={() => setShowHint((current) => !current)}
-            className="text-sm font-medium text-[#D934F7] hover:text-[#E66AFF]"
+            className="text-sm font-semibold text-[#61C5FA] transition hover:text-[#BDEAFF]"
           >
             {showHint ? "Hide hints ↑" : "Need a hint? →"}
           </button>
 
           {showHint && (
-            <div className="mt-3 rounded-xl border border-[#D934F7]/15 bg-[#D934F7]/[0.05] p-4">
+            <div className="mt-3 rounded-xl border border-white/[0.16] bg-slate-950/50 p-4 text-white shadow-inner backdrop-blur-2xl backdrop-saturate-150">
               <RenderContent value={hints} />
             </div>
           )}
@@ -569,13 +619,13 @@ function ExerciseCard({
           <button
             type="button"
             onClick={() => setShowSolution((current) => !current)}
-            className="text-sm text-[#A69BAC] transition hover:text-white"
+            className="text-sm font-medium text-[#CBD5E1] transition hover:text-white"
           >
             {showSolution ? "Hide solution ↑" : "Reveal solution →"}
           </button>
 
           {showSolution && (
-            <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="mt-3 rounded-xl border border-white/[0.16] bg-slate-950/50 p-4 text-white shadow-inner backdrop-blur-2xl backdrop-saturate-150">
               <RenderContent value={solution} />
             </div>
           )}
@@ -586,10 +636,10 @@ function ExerciseCard({
         type="button"
         onClick={toggleCompletion}
         disabled={saving || !exerciseId}
-        className={`mt-5 rounded-xl border px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`mt-5 rounded-xl border px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
           done
-            ? "border-[#BCF429]/30 bg-[#BCF429]/10 text-[#BCF429]"
-            : "border-white/10 text-[#D5C9DA] hover:border-[#BCF429]/40"
+            ? "border-[#61C5FA]/30 bg-[#61C5FA]/[0.09] text-[#BDEAFF]"
+            : "border-white/15 text-[#F1F5F9] hover:border-[#61C5FA]/40 hover:bg-white/[0.06]"
         }`}
       >
         {saving
@@ -608,12 +658,21 @@ function ExerciseCard({
   );
 }
 
+/* -------------------------------------------------------
+   MAIN LESSON PAGE
+------------------------------------------------------- */
+
 export default function LessonPage() {
   const params = useParams<{ id: string; lessonId: string }>();
   const courseId = params.id;
   const lessonId = params.lessonId;
 
   const sessionStartRef = useRef(Date.now());
+  const tabsNavRef = useRef<HTMLDivElement | null>(null);
+  const tabContentRef = useRef<HTMLDivElement | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
+  const [tabsFixed, setTabsFixed] = useState(false);
+  const [tabsPosition, setTabsPosition] = useState({ left: 0, width: 0 });
 
   const [lessonProgress, setLessonProgress] =
     useState<LessonProgressData | null>(null);
@@ -725,6 +784,51 @@ export default function LessonPage() {
     void fetchQuiz();
   }, [fetchLesson, fetchProgress, fetchQuiz]);
 
+  useEffect(() => {
+    setPortalReady(true);
+
+    const updateTabsPosition = () => {
+      const element = tabsNavRef.current;
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      setTabsPosition({ left: rect.left, width: rect.width });
+      setTabsFixed(rect.top <= 12);
+    };
+
+    updateTabsPosition();
+    window.addEventListener("scroll", updateTabsPosition, true);
+    window.addEventListener("resize", updateTabsPosition);
+
+    const observer = new ResizeObserver(updateTabsPosition);
+    if (tabsNavRef.current) observer.observe(tabsNavRef.current);
+
+    return () => {
+      window.removeEventListener("scroll", updateTabsPosition, true);
+      window.removeEventListener("resize", updateTabsPosition);
+      observer.disconnect();
+    };
+  }, []);
+
+  function handleTabChange(tabName: string) {
+    setActiveTab(tabName);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target = tabContentRef.current;
+        if (!target) return;
+
+        const top =
+          target.getBoundingClientRect().top + window.scrollY - 112;
+
+        window.scrollTo({
+          top: Math.max(0, top),
+          behavior: "smooth",
+        });
+      });
+    });
+  }
+
   async function submitQuiz() {
     if (!quizData?.id || submittingQuiz) return;
 
@@ -781,7 +885,6 @@ export default function LessonPage() {
 
       setQuizResult(result.data);
 
-      // Refresh the saved attempt history.
       const attemptsResponse = await apiFetch(
         `/quiz/${encodeURIComponent(getText(quizData.id))}/attempts`,
       );
@@ -866,12 +969,19 @@ export default function LessonPage() {
     }
   }
 
+  /* -------------------------------------------------------
+     LOADING
+  ------------------------------------------------------- */
+
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#09030E] text-white">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-[#D934F7]" />
-          <p className="mt-4 text-sm text-[#A69BAC]">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#071321] text-white">
+        <div className="pointer-events-none absolute -bottom-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#2684FF]/20 blur-[120px]" />
+
+        <div className="relative text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-[#61C5FA]" />
+
+          <p className="mt-4 text-sm font-medium text-[#CBD5E1]">
             Preparing your learning space...
           </p>
         </div>
@@ -879,36 +989,132 @@ export default function LessonPage() {
     );
   }
 
+  /* -------------------------------------------------------
+     ERROR
+  ------------------------------------------------------- */
+
   if (error && !lesson) {
     return (
-      <main className="min-h-screen bg-[#09030E] p-8 text-white">
-        <p className="mb-4 text-red-400">{error}</p>
-        <button
-          type="button"
-          onClick={() => {
-            setLoading(true);
-            void fetchLesson();
-          }}
-          className="rounded-xl bg-[#D934F7] px-5 py-3 font-semibold text-black"
-        >
-          Try again
-        </button>
+      <main className="flex min-h-screen items-center justify-center bg-[#071321] p-8 text-white">
+        <div className={`${glassSurface} max-w-md rounded-2xl p-7 text-center`}>
+          <p className="mb-5 text-sm text-red-300">{error}</p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              void fetchLesson();
+            }}
+            className="rounded-xl bg-[#61C5FA] px-5 py-3 text-sm font-semibold text-[#071321] transition hover:bg-[#BDEAFF]"
+          >
+            Try again
+          </button>
+        </div>
       </main>
     );
   }
 
   if (!lesson) return null;
 
+  const hasGeneratedLesson =
+    lesson.explanation != null ||
+    getList(lesson.keyConcepts).length > 0 ||
+    getList(lesson.examples).length > 0;
+
+  if (!hasGeneratedLesson) {
+    return (
+      <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-transparent px-4 py-12 text-white">
+        <div className="relative w-full max-w-2xl">
+          <Link
+            href={`/courses/${courseId}`}
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-[#CBD5E1] transition hover:text-white"
+          >
+            ← Back to course
+          </Link>
+
+          <section className="relative overflow-hidden bg-transparent p-7 text-center sm:p-12">
+            {generating && (
+              <>
+                <div className="relative mx-auto mb-7 flex h-24 w-24 items-center justify-center">
+                  <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#61C5FA] border-r-[#61C5FA]/40" />
+                  <div className="absolute inset-2 animate-[spin_3s_linear_infinite_reverse] rounded-full border border-dashed border-[#BDEAFF]/40" />
+                  <div className="h-10 w-10 animate-pulse rounded-2xl bg-gradient-to-br from-[#61C5FA] to-[#3978F6] shadow-[0_0_35px_rgba(97,197,250,0.5)]" />
+                  <span className="absolute -right-1 top-3 h-3 w-3 animate-ping rounded-full bg-[#BDEAFF]" />
+                  <span className="absolute bottom-2 -left-1 h-2.5 w-2.5 animate-pulse rounded-full bg-[#61C5FA]" />
+                </div>
+                <p className="relative text-xs font-bold uppercase tracking-[0.25em] text-[#8EDBFF]">
+                  LearnAI is working
+                </p>
+                <h1 className="relative mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  Creating your lesson
+                </h1>
+                <p className="relative mx-auto mt-3 max-w-md text-sm leading-6 text-[#CBD5E1]">
+                  Building explanations, key concepts, and examples. This may take a little while.
+                </p>
+                <div className="relative mx-auto mt-8 flex max-w-xs items-center justify-center gap-2">
+                  {[0, 1, 2, 3, 4].map((dot) => (
+                    <span
+                      key={dot}
+                      className="h-1.5 w-8 animate-pulse rounded-full bg-[#61C5FA]"
+                      style={{ animationDelay: `${dot * 160}ms` }}
+                    />
+                  ))}
+                </div>
+                <p className="relative mt-4 text-xs text-[#94A3B8]">
+                  Please keep this page open while generation is in progress.
+                </p>
+              </>
+            )}
+
+            {!generating && (
+              <>
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center text-3xl text-[#BDEAFF]">
+                  ✦
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#8EDBFF]">
+                  Ready when you are
+                </p>
+                <h1 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  Generate your lesson
+                </h1>
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#CBD5E1]">
+                  Create the lesson content with AI, including explanations, key concepts, and examples.
+                </p>
+                <button
+                  type="button"
+                  onClick={generateContent}
+                  className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#61C5FA] px-7 py-3.5 text-sm font-bold text-[#071321] shadow-[0_8px_30px_rgba(97,197,250,0.2)] transition hover:-translate-y-0.5 hover:bg-[#BDEAFF] hover:shadow-[0_12px_36px_rgba(97,197,250,0.3)]"
+                >
+                  <span aria-hidden="true">✦</span>
+                  Generate lesson
+                </button>
+              </>
+            )}
+
+            {error && (
+              <p role="alert" className="relative mt-5 text-sm text-red-300">
+                {error}
+              </p>
+            )}
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   const concepts = getList(lesson.keyConcepts);
   const examples = getList(lesson.examples);
   const codeExamples = getList(lesson.codeExamples);
   const mistakes = getList(lesson.commonMistakes);
+
   const exercises = getList(lesson.exercises).filter(
     (item): item is DataRecord => asRecord(item) !== null,
   );
+
   const questions = getList(quizData?.questions).filter(
     (item): item is DataRecord => asRecord(item) !== null,
   );
+
   const resources = getList(lesson.resources).filter(
     (item): item is DataRecord => asRecord(item) !== null,
   );
@@ -920,79 +1126,99 @@ export default function LessonPage() {
     { name: "Quiz", count: questions.length },
   ];
 
-  const progress = Math.max(0, Math.min(100, lessonProgress?.progress ?? 0));
+  const tabNavigation = (
+    <nav
+      className={`${glassSurface} flex w-full items-center gap-2 overflow-x-auto rounded-full p-2 shadow-[0_12px_35px_rgba(0,0,0,0.25)] scrollbar-hide`}
+    >
+      {tabs.map((tab) => (
+        <button
+          key={tab.name}
+          type="button"
+          onClick={() => handleTabChange(tab.name)}
+          className={`flex shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-all duration-200 ${
+            activeTab === tab.name
+              ? "border border-[#A9C9E8]/50 bg-[#D0DFEF] text-[#101722]"
+              : "border border-transparent text-[#CBD5E1] hover:bg-white/[0.07] hover:text-white"
+          }`}
+        >
+          {tab.name}
+          <span className="rounded-full bg-black/[0.08] px-2 py-0.5 text-xs text-current">
+            {tab.count}
+          </span>
+        </button>
+      ))}
+    </nav>
+  );
 
   return (
-    <main className="min-h-screen bg-[#09030E] text-white">
-      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09030E]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-7">
-          <Link
-            href={`/courses/${courseId}`}
-            className="flex min-w-0 items-center gap-3 text-sm text-[#A69BAC] transition hover:text-white"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#D934F7] font-bold text-black">
-              L
-            </span>
-            <span className="hidden sm:inline">LearnAI</span>
-            <span className="text-white/20">/</span>
-            <span className="truncate">{lesson.title}</span>
-          </Link>
+<main className="relative isolate min-h-screen overflow-x-clip bg-transparent text-white">
 
-          <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-[#95859E] sm:inline">
-              {progress}% complete
-            </span>
-            <div className="h-2 w-20 overflow-hidden rounded-full bg-white/10 sm:w-32">
-              <div
-                className="h-full rounded-full bg-[#BCF429] transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-7 sm:px-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-10 lg:py-10">
+  {portalReady && tabsFixed && tabsPosition.width > 0 &&
+    createPortal(
+      <div
+        className="pointer-events-none fixed top-3 z-[99999]"
+        style={{ left: tabsPosition.left, width: tabsPosition.width }}
+      >
+        <div className="pointer-events-auto">{tabNavigation}</div>
+      </div>,
+      document.body,
+    )}
+
+      {/* MAIN LAYOUT */}
+
+      <div className="mx-auto w-full max-w-7xl px-3 py-7 pr-16 sm:px-5 sm:pr-20 lg:px-8 lg:pr-24 lg:py-10">
+
+        {/* LEFT CONTENT */}
+
         <div className="min-w-0 space-y-7">
-          <Link
-            href={`/courses/${courseId}`}
-            className="inline-flex items-center gap-2 text-sm text-[#A69BAC] transition hover:text-[#D934F7]"
-          >
-            ← Back to course
-          </Link>
+          <div className="mb-7 flex w-full items-center justify-start">
+            <Link
+              href={`/courses/${courseId}`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-[#CBD5E1] transition hover:text-[#BDEAFF]"
+            >
+              ← Back to course
+            </Link>
+          </div>
 
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-red-400/20 bg-red-400/[0.07] p-4 text-sm text-red-300"
+              className="rounded-xl border border-red-400/20 bg-red-400/[0.07] p-4 text-sm text-red-300 backdrop-blur-xl"
             >
               {error}
             </div>
           )}
 
-          <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1C0B25] via-[#130A19] to-[#0D0612] p-6 sm:p-9">
-            <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#D934F7]/10 blur-[90px]" />
+          {/* LESSON HERO */}
+
+          <section className={`relative overflow-hidden rounded-3xl p-6 sm:p-9 ${glassSurface}`}>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#61C5FA]/[0.09] blur-[90px]"
+            />
 
             <div className="relative">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-[#D934F7]/20 bg-[#D934F7]/10 px-3 py-1.5 text-xs font-medium text-[#E66AFF]">
+                <span className="rounded-full border border-[#61C5FA]/25 bg-[#61C5FA]/[0.09] px-3 py-1.5 text-xs font-semibold text-[#BDEAFF]">
                   LESSON
                 </span>
-                <span className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#A69BAC]">
+
+                <span className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-[#E2E8F0]">
                   Self-paced learning
                 </span>
               </div>
 
-              <h1 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+              <h1 className="mt-6 max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
                 {lesson.title}
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[#B8AABD] sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-[#E2E8F0] sm:text-base">
                 Learn the concepts, explore examples, and test your
                 understanding at your own pace.
               </p>
 
-              <div className="mt-7 flex flex-wrap items-center gap-3 text-xs text-[#A69BAC]">
+              <div className="mt-7 flex flex-wrap items-center gap-3 text-xs font-medium text-[#CBD5E1]">
                 <span>{concepts.length} concepts</span>
                 <span className="text-white/20">•</span>
                 <span>{codeExamples.length} code examples</span>
@@ -1002,25 +1228,13 @@ export default function LessonPage() {
             </div>
           </section>
 
-          <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#120A18] p-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.name}
-                type="button"
-                onClick={() => setActiveTab(tab.name)}
-                className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-sm transition ${
-                  activeTab === tab.name
-                    ? "bg-[#D934F7]/15 font-medium text-[#E66AFF]"
-                    : "text-[#A69BAC] hover:bg-white/[0.04] hover:text-white"
-                }`}
-              >
-                {tab.name}
-                <span className="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-xs">
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </nav>
+          {/* TABS */}
+          <div ref={tabsNavRef} className="relative h-[58px]">
+            <div className="absolute inset-x-0 top-0">{tabNavigation}</div>
+          </div>
+
+          <div ref={tabContentRef} className="scroll-mt-28">
+          {/* LEARN TAB */}
 
           {activeTab === "Learn" && (
             <div className="space-y-6">
@@ -1032,7 +1246,7 @@ export default function LessonPage() {
                   title="Your lesson is ready to build"
                   description="Generate the lesson material to get started."
                 >
-                  <p className="text-sm leading-7 text-[#B8AABD]">
+                  <p className="text-sm font-medium leading-7 text-[#E2E8F0]">
                     LearnAI can generate an explanation, examples, and practice
                     material for this lesson.
                   </p>
@@ -1041,7 +1255,7 @@ export default function LessonPage() {
                     type="button"
                     onClick={generateContent}
                     disabled={generating}
-                    className="mt-5 rounded-xl bg-[#D934F7] px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#E66AFF] disabled:opacity-50"
+                    className="mt-5 rounded-xl bg-[#61C5FA] px-5 py-3 text-sm font-semibold text-[#071321] transition hover:bg-[#BDEAFF] disabled:opacity-50"
                   >
                     {generating
                       ? "Generating lesson..."
@@ -1070,7 +1284,7 @@ export default function LessonPage() {
                         {concepts.map((concept, index) => (
                           <div
                             key={index}
-                            className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4"
+                            className="rounded-xl border border-white/[0.18] bg-slate-950/45 p-4 text-white shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150"
                           >
                             <RenderContent value={concept} />
                           </div>
@@ -1089,7 +1303,7 @@ export default function LessonPage() {
                         {examples.map((example, index) => (
                           <div
                             key={index}
-                            className="border-l-2 border-[#D934F7]/50 pl-4"
+                            className="border-l-2 border-[#61C5FA]/50 pl-4"
                           >
                             <RenderContent value={example} />
                           </div>
@@ -1108,9 +1322,10 @@ export default function LessonPage() {
                         {mistakes.map((mistake, index) => (
                           <div
                             key={index}
-                            className="flex gap-3 rounded-xl border border-amber-400/10 bg-amber-400/[0.035] p-4"
+                            className="flex gap-3 rounded-xl border border-white/[0.16] bg-slate-950/45 p-4 text-white shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150"
                           >
                             <span className="text-amber-300">!</span>
+
                             <div className="min-w-0 flex-1">
                               <RenderContent value={mistake} />
                             </div>
@@ -1125,14 +1340,16 @@ export default function LessonPage() {
               {codeExamples.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setActiveTab("Code")}
-                  className="w-full rounded-xl border border-[#D934F7]/20 bg-[#D934F7]/[0.06] p-4 text-left text-sm text-[#E66AFF] transition hover:bg-[#D934F7]/10"
+                  onClick={() => handleTabChange("Code")}
+                  className="w-full rounded-xl border border-[#61C5FA]/20 bg-[#61C5FA]/[0.06] p-4 text-left text-sm font-semibold text-[#BDEAFF] transition hover:bg-[#61C5FA]/[0.10]"
                 >
                   Continue to code examples →
                 </button>
               )}
             </div>
           )}
+
+          {/* CODE TAB */}
 
           {activeTab === "Code" && (
             <div className="space-y-6">
@@ -1142,7 +1359,7 @@ export default function LessonPage() {
                   title="No code examples yet"
                   description="This lesson does not contain code examples."
                 >
-                  <p className="text-sm text-[#A69BAC]">
+                  <p className="text-sm text-[#CBD5E1]">
                     Try another lesson or generate lesson content.
                   </p>
                 </Section>
@@ -1163,6 +1380,8 @@ export default function LessonPage() {
             </div>
           )}
 
+          {/* PRACTICE TAB */}
+
           {activeTab === "Practice" && (
             <div className="space-y-6">
               {exercises.length === 0 ? (
@@ -1171,7 +1390,7 @@ export default function LessonPage() {
                   title="No exercises available"
                   description="There are no exercises attached to this lesson yet."
                 >
-                  <p className="text-sm text-[#A69BAC]">
+                  <p className="text-sm text-[#CBD5E1]">
                     You can continue learning and return when exercises are
                     available.
                   </p>
@@ -1190,6 +1409,8 @@ export default function LessonPage() {
             </div>
           )}
 
+          {/* QUIZ TAB */}
+
           {activeTab === "Quiz" && (
             <div className="space-y-6">
               {questions.length === 0 ? (
@@ -1198,7 +1419,7 @@ export default function LessonPage() {
                   title="No quiz questions available"
                   description="This lesson has no quiz questions yet."
                 >
-                  <p className="text-sm text-[#A69BAC]">
+                  <p className="text-sm text-[#CBD5E1]">
                     Review the lesson material or try another lesson.
                   </p>
                 </Section>
@@ -1223,6 +1444,7 @@ export default function LessonPage() {
                               ...current,
                               [id]: answer,
                             }));
+
                             setQuizError("");
                           }}
                           disabled={Boolean(quizResult)}
@@ -1242,13 +1464,13 @@ export default function LessonPage() {
                       type="button"
                       onClick={submitQuiz}
                       disabled={submittingQuiz || questions.length === 0}
-                      className="mt-6 rounded-xl bg-[#D934F7] px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#E66AFF] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="mt-6 rounded-xl bg-[#61C5FA] px-5 py-3 text-sm font-semibold text-[#071321] transition hover:bg-[#BDEAFF] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {submittingQuiz ? "Submitting..." : "Submit quiz"}
                     </button>
                   ) : (
-                    <div className="mt-6 rounded-2xl border border-[#BCF429]/20 bg-[#BCF429]/[0.06] p-5">
-                      <p className="text-sm font-semibold text-[#BCF429]">
+                    <div className="mt-6 rounded-2xl border border-[#61C5FA]/20 bg-[#61C5FA]/[0.06] p-5 backdrop-blur-xl">
+                      <p className="text-sm font-semibold text-[#BDEAFF]">
                         {quizResult.passed === true
                           ? "Quiz passed!"
                           : "Quiz completed"}
@@ -1259,7 +1481,7 @@ export default function LessonPage() {
                         {getText(quizResult.totalPoints, "0")} points
                       </p>
 
-                      <p className="mt-1 text-sm text-[#B8AABD]">
+                      <p className="mt-1 text-sm text-[#E2E8F0]">
                         Score: {getText(quizResult.percentage, "0")}%
                       </p>
 
@@ -1270,7 +1492,7 @@ export default function LessonPage() {
                           setQuizResult(null);
                           setQuizError("");
                         }}
-                        className="mt-4 rounded-xl border border-white/10 px-4 py-2.5 text-sm text-[#D5C9DA] transition hover:border-[#D934F7]/40 hover:text-white"
+                        className="mt-4 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-[#F1F5F9] transition hover:border-[#61C5FA]/40 hover:bg-white/[0.05]"
                       >
                         Try again
                       </button>
@@ -1287,19 +1509,21 @@ export default function LessonPage() {
                         {quizAttempts.map((attempt, index) => {
                           const total = Number(attempt.totalPoints ?? 0);
                           const score = Number(attempt.score ?? 0);
+
                           const percentage =
                             total > 0 ? Math.round((score / total) * 100) : 0;
 
                           return (
                             <div
                               key={getText(attempt.id, String(index))}
-                              className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4"
+                              className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.16] bg-slate-950/45 p-4 text-white shadow-[0_8px_24px_rgba(0,0,0,0.20)] backdrop-blur-2xl"
                             >
                               <div>
                                 <p className="text-sm font-medium text-white">
                                   Attempt {quizAttempts.length - index}
                                 </p>
-                                <p className="mt-1 text-xs text-[#95859E]">
+
+                                <p className="mt-1 text-xs text-[#CBD5E1]">
                                   {attempt.completedAt
                                     ? new Date(
                                         getText(attempt.completedAt),
@@ -1309,10 +1533,11 @@ export default function LessonPage() {
                               </div>
 
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-[#BCF429]">
+                                <p className="text-sm font-semibold text-[#BDEAFF]">
                                   {score}/{total}
                                 </p>
-                                <p className="text-xs text-[#A69BAC]">
+
+                                <p className="text-xs text-[#CBD5E1]">
                                   {percentage}%
                                 </p>
                               </div>
@@ -1323,7 +1548,7 @@ export default function LessonPage() {
                     </div>
                   )}
 
-                  <p className="mt-5 text-xs leading-5 text-[#75667C]">
+                  <p className="mt-5 text-xs leading-5 text-[#94A3B8]">
                     These answer checks run in your browser. Quiz attempts and
                     scores are not submitted to the backend by this page yet.
                   </p>
@@ -1331,6 +1556,10 @@ export default function LessonPage() {
               )}
             </div>
           )}
+
+          </div>
+
+          {/* LEARNING RESOURCES */}
 
           {resources.length > 0 && (
             <Section
@@ -1341,6 +1570,7 @@ export default function LessonPage() {
               <div className="space-y-3">
                 {resources.map((resource, index) => {
                   const url = getText(resource.url);
+
                   const title = getText(
                     resource.title,
                     `Learning resource ${index + 1}`,
@@ -1349,12 +1579,13 @@ export default function LessonPage() {
                   return (
                     <div
                       key={getText(resource.id, String(index))}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.18] bg-slate-950/45 p-4 text-white shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150"
                     >
                       <div>
                         <p className="font-medium text-white">{title}</p>
+
                         {resource.description != null && (
-                          <div className="mt-1 text-sm text-[#A69BAC]">
+                          <div className="mt-1 text-sm text-[#CBD5E1]">
                             <RenderContent value={resource.description} />
                           </div>
                         )}
@@ -1365,7 +1596,7 @@ export default function LessonPage() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm font-medium text-[#D934F7] hover:text-[#E66AFF]"
+                          className="text-sm font-semibold text-[#61C5FA] transition hover:text-[#BDEAFF]"
                         >
                           Open ↗
                         </a>
@@ -1375,165 +1606,63 @@ export default function LessonPage() {
                 })}
               </div>
             </Section>
-
           )}
-          <BookmarkButton lessonId={lessonId} />
+
+          {/* EXISTING COMPONENTS */}
+
           <NotesPanel lessonId={lessonId} />
           <FlashcardsPanel lessonId={lessonId} />
-          <section className="rounded-3xl border border-[#BCF429]/15 bg-gradient-to-br from-[#BCF429]/[0.06] to-transparent p-6 sm:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.15em] text-[#BCF429]">
-                  LESSON PROGRESS
-                </p>
 
-                <h2 className="mt-2 text-xl font-semibold">
-                  {lessonProgress?.completed
-                    ? "Lesson completed!"
-                    : "Ready to finish this lesson?"}
-                </h2>
 
-                <p className="mt-2 text-sm leading-6 text-[#A69BAC]">
-                  {lessonProgress?.completed
-                    ? "Your saved progress shows this lesson as complete."
-                    : "Mark this lesson complete when you're ready."}
-                </p>
-              </div>
 
-              <button
-                type="button"
-                onClick={markLessonComplete}
-                disabled={savingProgress || lessonProgress?.completed === true}
-                className="shrink-0 rounded-xl bg-[#BCF429] px-5 py-3.5 text-sm font-semibold text-[#09030E] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {savingProgress
-                  ? "Saving..."
-                  : lessonProgress?.completed
-                    ? "✓ Completed"
-                    : "Complete lesson →"}
-              </button>
-            </div>
-
-            <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-[#BCF429] transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <div className="mt-2 flex justify-between text-xs text-[#A69BAC]">
-              <span>Progress saved to your account</span>
-              <span>{progress}%</span>
-            </div>
-
-            {progressMessage && (
-              <p role="status" className="mt-4 text-sm text-[#BCF429]">
-                {progressMessage}
-              </p>
-            )}
-          </section>
+          {/* FOOTER NAVIGATION */}
 
           <div className="flex items-center justify-between gap-4 pb-6">
             <Link
               href={`/courses/${courseId}`}
-              className="rounded-xl border border-white/10 px-4 py-3 text-sm text-[#A69BAC] transition hover:text-white"
+              className="rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-sm font-medium text-[#E2E8F0] transition hover:bg-white/[0.08] hover:text-white"
             >
               ← Course overview
             </Link>
 
             <button
               type="button"
+              onClick={markLessonComplete}
+              disabled={savingProgress || lessonProgress?.completed === true}
+              className={`rounded-xl border px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
+                lessonProgress?.completed
+                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                  : "border-[#61C5FA]/40 bg-[#61C5FA] text-[#071321] hover:bg-[#BDEAFF]"
+              }`}
+            >
+              {savingProgress
+                ? "Saving..."
+                : lessonProgress?.completed
+                  ? "✓ Marked as completed"
+                  : "Mark as completed"}
+            </button>
+
+            <button
+              type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="rounded-xl border border-white/10 px-4 py-3 text-sm text-[#A69BAC] transition hover:text-white"
+              className="rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-sm font-medium text-[#E2E8F0] transition hover:bg-white/[0.08] hover:text-white"
             >
               Back to top ↑
             </button>
           </div>
+
+          {progressMessage && (
+            <p
+              role="status"
+              className={`pb-5 text-right text-sm ${
+                lessonProgress?.completed ? "text-emerald-300" : "text-[#CBD5E1]"
+              }`}
+            >
+              {progressMessage}
+            </p>
+          )}
         </div>
 
-        <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
-          <section className="rounded-2xl border border-white/[0.08] bg-[#120A18] p-5">
-            <p className="text-xs font-semibold tracking-[0.15em] text-[#BCF429]">
-              YOUR LEARNING SPACE
-            </p>
-
-            <h2 className="mt-3 text-lg font-semibold">
-              Keep making progress.
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-[#95859E]">
-              Work through the concepts, practice with examples, and check your
-              understanding.
-            </p>
-
-            <div className="mt-5 space-y-3">
-              {[
-                {
-                  label: "Lesson content",
-                  done: Boolean(lesson.explanation),
-                },
-                {
-                  label: "Code examples",
-                  done: codeExamples.length > 0,
-                },
-                {
-                  label: "Practice exercises",
-                  done: exercises.length > 0,
-                },
-                {
-                  label: "Knowledge check",
-                  done: questions.length > 0,
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3 text-sm"
-                >
-                  <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-lg ${
-                      item.done
-                        ? "bg-[#BCF429]/10 text-[#BCF429]"
-                        : "bg-white/[0.05] text-[#75667C]"
-                    }`}
-                  >
-                    {item.done ? "✓" : "·"}
-                  </span>
-
-                  <span
-                    className={item.done ? "text-[#D5C9DA]" : "text-[#95859E]"}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-white/[0.08] bg-[#120A18] p-5">
-            <p className="text-sm font-semibold text-white">Quick navigation</p>
-
-            <div className="mt-4 space-y-1">
-              {["Learn", "Code", "Practice", "Quiz"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => {
-                    setActiveTab(tab);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`w-full rounded-xl px-3 py-2.5 text-left text-sm transition ${
-                    activeTab === tab
-                      ? "bg-[#D934F7]/10 text-[#E66AFF]"
-                      : "text-[#A69BAC] hover:bg-white/[0.04] hover:text-white"
-                  }`}
-                >
-                  {tab}
-                  <span className="float-right">→</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </aside>
       </div>
     </main>
   );

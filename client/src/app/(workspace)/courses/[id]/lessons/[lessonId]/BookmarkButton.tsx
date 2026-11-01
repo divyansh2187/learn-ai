@@ -89,7 +89,7 @@ export default function BookmarkButton({
         aria-pressed={bookmarked}
         className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition disabled:opacity-50 ${
           bookmarked
-            ? "border-[#BCF429]/30 bg-[#BCF429]/10 text-[#BCF429]"
+            ? "border-[#BCF429]/30 bg-[#BCF429]/10 text-[#e4f1f9]"
             : "border-white/10 bg-white/[0.03] text-[#D5C9DA] hover:border-[#D934F7]/40 hover:text-white"
         }`}
       >

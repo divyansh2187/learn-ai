@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -6,15 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  Bell,
   BookOpen,
   CheckCircle2,
   Clock3,
-  GraduationCap,
   Plus,
   Search,
   Sparkles,
-  Users,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import "@/app/globals.css";
@@ -48,9 +44,10 @@ type MyCoursesData = {
 const muted = "text-[#A9BAD3]";
 
 const glass =
-  "rounded-[22px] border border-white/[0.16] " +
-  "bg-[#1B2738]/80 backdrop-blur-xl " +
-  "shadow-[0_8px_32px_rgba(0,0,0,0.20)]";
+  "rounded-[22px] border border-white/[0.18] " +
+  "bg-white/[0.07] backdrop-blur-2xl backdrop-saturate-150 " +
+  "shadow-[0_8px_32px_rgba(0,0,0,0.18)] " +
+  "ring-1 ring-inset ring-white/[0.04]";
 
 function getCourseImage(course: Course) {
   if (course.thumbnail) return course.thumbnail;
@@ -208,20 +205,12 @@ export default function MyCoursesPage() {
 
   return (
     <main className="relative isolate min-h-screen overflow-x-clip px-3 py-4 text-white sm:px-5 sm:py-6 lg:px-7">
-      {/* Background */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(120,164,211,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(120,164,211,0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: "36px 36px",
-        }}
-      />
+
+      {/* BACKGROUND */}
+     
 
       <div className="mx-auto max-w-[1500px]">
+
         {/* HEADER */}
         <header className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div>
@@ -246,17 +235,29 @@ export default function MyCoursesPage() {
           </div>
         </header>
 
-        {/* HERO BANNER */}
-        <section className="relative mb-8 min-h-[175px] overflow-hidden rounded-[24px] border border-white/15 bg-gradient-to-br from-[#1135CC] via-[#377FE4] to-[#77C2F7] shadow-[0_15px_45px_rgba(0,0,0,0.25)] sm:min-h-[195px]">
-          <div className="relative z-10 flex min-h-[175px] flex-col justify-top p-5 sm:min-h-[195px] sm:p-8">
-            <h2 className="max-w-xl text-xl font-bold leading-tight tracking-tight text-white sm:text-3xl">
-              The right course can change your <p className="font-thin text-7xl">FUTURE</p>
-            </h2>
+        {/* FUTURE GLASS BANNER */}
+        <section
+          className={`rounded-[22px] bg-gradient-to-br from-[#0f0fc4] to-[#8BD6FF] ,  relative mb-8 min-h-[175px] overflow-hidden p-5 sm:min-h-[195px] sm:p-8`}
+        >
+          {/* GLASS REFLECTION */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/[0.04] bg-gradient-to-br from-white/[0.07] via-transparent to-sky-300/[0.04]"
+          />
 
-            {/* <p className="mt-2 max-w-md text-xs leading-5 text-[#D2E8FF]/80 sm:text-sm">
-              Explore your learning paths, build new skills and make progress
-              every day.
-            </p> */}
+          {/* BLUE GLOW */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#2684FF]/20 blur-[70px]"
+          />
+
+          <div className="relative z-10 flex min-h-[135px] flex-col justify-center sm:min-h-[147px]">
+            <h2 className="max-w-xl text-xl font-bold leading-tight tracking-tight text-white sm:text-3xl">
+              The right course can change your
+              <span className="block text-6xl font-thin sm:text-7xl">
+                FUTURE
+              </span>
+            </h2>
           </div>
         </section>
 
@@ -286,7 +287,7 @@ export default function MyCoursesPage() {
 
         {/* COURSE CARDS */}
         {loading ? (
-          <div className="min-w-0 rounded-[22px] border border-white/[0.12] bg-[#101722]/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.20)]">
+          <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
@@ -295,7 +296,7 @@ export default function MyCoursesPage() {
             ))}
           </div>
         ) : filteredCourses.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fill,minmax(280px,330px))]">
+          <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {filteredCourses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
@@ -323,7 +324,7 @@ export default function MyCoursesPage() {
             {!search && (
               <Link
                 href="/courses/create"
-                className="group relative flex min-h-[500px] w-full max-w-[330px] min-w-0 flex-col overflow-hidden rounded-[26px] border border-white/[0.12] bg-[#10111B] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
+                className={`${glass} mt-6 inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.12]`}
               >
                 <Plus size={15} />
                 Create your first course
@@ -356,8 +357,12 @@ function CourseCard({ course }: { course: Course }) {
       {/* FLIP CONTAINER */}
       <div className="relative w-full [transform-style:preserve-3d] transition-transform duration-700 ease-in-out group-hover/card:[transform:rotateY(180deg)] group-focus-visible/card:[transform:rotateY(180deg)]">
 
-        {/* FRONT SIDE - THIS SIDE DEFINES THE CARD SIZE */}
-        <div className="relative flex min-w-0 flex-col overflow-hidden rounded-[22px] border border-white/[0.16] bg-[#101722]/55 p-4 shadow-[0_12px_35px_rgba(0,0,0,0.4)] backdrop-blur-xl [backface-visibility:hidden]">
+        {/* FRONT GLASS CARD */}
+        <div
+          className={`${glass} relative flex min-w-0 flex-col overflow-hidden p-4 [backface-visibility:hidden]`}
+        >
+          {/* GLASS REFLECTION */}
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/[0.04] bg-gradient-to-br from-white/[0.07] via-transparent to-sky-300/[0.04]" />
 
           {/* BLUE GLOW */}
           <div className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-[85%] -translate-x-1/2 rounded-full bg-[#2684FF]/60 blur-[45px]" />
@@ -376,13 +381,13 @@ function CourseCard({ course }: { course: Course }) {
 
           {/* COURSE CONTENT */}
           <div className="relative z-10 flex flex-1 flex-col px-1.5 pb-1 pt-3">
-            <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-[#f7f6fa]">
+            <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white">
               {course.title}
             </h3>
 
             {/* PROGRESS */}
             <div className="mt-5">
-              <div className="mb-1 flex items-center justify-between text-[9px] text-white/55">
+              <div className="mb-1 flex items-center justify-between text-[9px] font-medium text-white/80">
                 <span>Course progress</span>
                 <span>{progress}%</span>
               </div>
@@ -396,16 +401,20 @@ function CourseCard({ course }: { course: Course }) {
             </div>
 
             {/* BUTTON */}
-            <div className="mt-5 inline-flex w-fit items-center rounded-full bg-[#F2EFFF] px-6 py-2.5 text-[11px] font-semibold text-[#171322] transition group-hover/card:bg-white">
+            <div className="mt-5 inline-flex w-fit items-center rounded-full border border-white/20 bg-white/[0.12] px-6 py-2.5 text-[11px] font-semibold text-white backdrop-blur-xl transition group-hover/card:bg-white/[0.20]">
               Learn more
             </div>
           </div>
         </div>
 
-        {/* BACK SIDE - ABSOLUTE, SO IT CANNOT CHANGE THE CARD HEIGHT */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[22px] border border-[#60A5FA]/40 bg-[#07152C] p-4 shadow-[0_0_30px_rgba(37,99,235,0.15)] [transform:rotateY(180deg)] [backface-visibility:hidden]">
+        {/* BACK GLASS CARD */}
+        <div
+          className={`${glass} absolute inset-0 flex flex-col items-center justify-center overflow-hidden p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]`}
+        >
+          {/* GLASS REFLECTION */}
+          <div className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/[0.04] bg-gradient-to-br from-white/[0.07] via-transparent to-sky-300/[0.04]" />
 
-          {/* SUBTLE BLUE BACKGROUND GLOW */}
+          {/* BLUE GLOW */}
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#2684FF]/25 blur-[65px]" />
 
           <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[#61C5FA]/20 blur-[65px]" />
@@ -420,7 +429,7 @@ function CourseCard({ course }: { course: Course }) {
               {course.title}
             </h3>
 
-            <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-white/70">
+            <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-white/85">
               {course.description ||
                 course.subtitle ||
                 course.category ||
@@ -429,26 +438,26 @@ function CourseCard({ course }: { course: Course }) {
 
             {/* COURSE STATISTICS */}
             <div className="mt-3 grid w-full grid-cols-2 gap-2">
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-2">
+              <div className="rounded-xl border border-white/[0.14] bg-white/[0.08] p-2 backdrop-blur-xl">
                 <BookOpen size={15} className="mx-auto text-[#8BD6FF]" />
 
                 <p className="mt-1 text-base font-bold text-white">
                   {course.totalLessons}
                 </p>
 
-                <p className="text-[9px] text-white/55">
+                <p className="text-[9px] font-medium text-white/80">
                   Total lessons
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-2">
+              <div className="rounded-xl border border-white/[0.14] bg-white/[0.08] p-2 backdrop-blur-xl">
                 <CheckCircle2 size={15} className="mx-auto text-[#8BD6FF]" />
 
                 <p className="mt-1 text-base font-bold text-white">
                   {course.completedLessons}
                 </p>
 
-                <p className="text-[9px] text-white/55">
+                <p className="text-[9px] font-medium text-white/80">
                   Completed
                 </p>
               </div>
@@ -456,7 +465,7 @@ function CourseCard({ course }: { course: Course }) {
 
             {/* PROGRESS */}
             <div className="mt-3 w-full">
-              <div className="mb-1 flex justify-between text-[9px] text-white/60">
+              <div className="mb-1 flex justify-between text-[9px] font-medium text-white/80">
                 <span>Progress</span>
                 <span>{progress}%</span>
               </div>
@@ -470,13 +479,13 @@ function CourseCard({ course }: { course: Course }) {
             </div>
 
             {/* DURATION */}
-            <div className="mt-2 flex items-center gap-2 text-[9px] text-white/65">
+            <div className="mt-2 flex items-center gap-2 text-[9px] font-medium text-white/80">
               <Clock3 size={12} />
               {duration || "Self-paced learning"}
             </div>
 
             {/* CLICK TO OPEN */}
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#61C5FA]/30 bg-[#2684FF]/20 px-5 py-2 text-[10px] font-semibold text-white transition group-hover/card:bg-[#2684FF]/35">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#61C5FA]/30 bg-[#2684FF]/20 px-5 py-2 text-[10px] font-semibold text-white backdrop-blur-xl transition group-hover/card:bg-[#2684FF]/35">
               Continue Learning
               <ArrowRight size={13} />
             </div>
