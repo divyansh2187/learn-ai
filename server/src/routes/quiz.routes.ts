@@ -4,6 +4,7 @@ import {
   requireAuth,
   AuthenticatedRequest,
 } from "../middleware/auth.middleware";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
@@ -25,7 +26,14 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId;
+
+if (typeof lessonId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid lesson ID",
+  });
+}
 
     const quiz = await prisma.quiz.findUnique({
       where: {
@@ -100,8 +108,16 @@ router.post("/:quizId/submit", requireAuth, async (req, res) => {
       });
     }
 
-    const { quizId } = req.params;
-    const userId = authReq.user.id;
+    const quizId = req.params.quizId;
+
+if (typeof quizId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid quiz ID",
+  });
+}
+
+const userId = authReq.user.id;
 
     const { answers } = req.body;
 
@@ -219,7 +235,7 @@ router.post("/:quizId/submit", requireAuth, async (req, res) => {
         userId,
         score,
         totalPoints,
-        answers: results,
+        answers: JSON.parse(JSON.stringify(results)) as Prisma.InputJsonValue,
       },
     });
 
@@ -272,8 +288,16 @@ router.get("/:quizId/attempts", requireAuth, async (req, res) => {
       });
     }
 
-    const { quizId } = req.params;
-    const userId = authReq.user.id;
+   const quizId = req.params.quizId;
+
+if (typeof quizId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid quiz ID",
+  });
+}
+
+const userId = authReq.user.id;
 
     // Check quiz exists
     const quiz = await prisma.quiz.findUnique({

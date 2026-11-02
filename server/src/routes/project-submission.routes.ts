@@ -25,7 +25,14 @@ router.post("/:projectId/start", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+    const projectId = req.params.projectId;
+
+    if (typeof projectId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID",
+      });
+    }
     const userId = authReq.user.id;
 
     // ------------------------------------------------------
@@ -109,7 +116,14 @@ router.get("/:projectId", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+    const projectId = req.params.projectId;
+
+    if (typeof projectId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID",
+      });
+    }
     const userId = authReq.user.id;
 
     const submission = await prisma.projectSubmission.findUnique({
@@ -172,7 +186,14 @@ router.patch("/:projectId", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+    const projectId = req.params.projectId;
+
+    if (typeof projectId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID",
+      });
+    }
     const userId = authReq.user.id;
 
     const { githubUrl, liveUrl, notes } = req.body;
@@ -256,7 +277,14 @@ router.post("/:projectId/submit", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+    const projectId = req.params.projectId;
+
+    if (typeof projectId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID",
+      });
+    }
     const userId = authReq.user.id;
 
     // ------------------------------------------------------

@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import prisma from "../config/database";
 import {
@@ -49,9 +48,16 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
-    const userId = authReq.user.id;
+    const lessonId = req.params.lessonId;
 
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
+    const userId = authReq.user.id;
     const lesson = await getLessonWithCourse(lessonId);
 
     if (!lesson) {
@@ -140,7 +146,15 @@ router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const lesson = await getLessonWithCourse(lessonId);
@@ -233,10 +247,7 @@ router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
     if (duration !== undefined && duration !== null && duration !== "") {
       durationValue = Number(duration);
 
-      if (
-        !Number.isInteger(durationValue) ||
-        durationValue < 0
-      ) {
+      if (!Number.isInteger(durationValue) || durationValue < 0) {
         return res.status(400).json({
           success: false,
           message: "Duration must be a non-negative integer",
@@ -285,17 +296,11 @@ router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
         videoId: normalizedVideoId,
         title: title.trim(),
         channelName:
-          typeof channelName === "string"
-            ? channelName.trim() || null
-            : null,
+          typeof channelName === "string" ? channelName.trim() || null : null,
         thumbnail:
-          typeof thumbnail === "string"
-            ? thumbnail.trim() || null
-            : null,
+          typeof thumbnail === "string" ? thumbnail.trim() || null : null,
         description:
-          typeof description === "string"
-            ? description.trim() || null
-            : null,
+          typeof description === "string" ? description.trim() || null : null,
         duration: durationValue,
         publishedAt: publishedAtValue,
         url: parsedUrl.toString(),
@@ -346,7 +351,15 @@ router.patch("/:resourceId/watched", requireAuth, async (req, res) => {
       });
     }
 
-    const { resourceId } = req.params;
+    const resourceId = req.params.resourceId;
+
+    if (typeof resourceId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid resource ID",
+      });
+    }
+
     const userId = authReq.user.id;
     const { watched } = req.body;
 
@@ -442,24 +455,19 @@ router.delete("/:resourceId", requireAuth, async (req, res) => {
       });
     }
 
-    const { resourceId } = req.params;
+    const resourceId = req.params.resourceId;
+
+    if (typeof resourceId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid resource ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const resource = await prisma.youTubeResource.findUnique({
       where: { id: resourceId },
-      include: {
-        lesson: {
-          include: {
-            module: {
-              include: {
-                course: {
-                  select: { userId: true },
-                },
-              },
-            },
-          },
-        },
-      },
     });
 
     if (!resource) {
@@ -469,7 +477,16 @@ router.delete("/:resourceId", requireAuth, async (req, res) => {
       });
     }
 
-    if (resource.lesson.module.course.userId !== userId) {
+    const lesson = await getLessonWithCourse(resource.lessonId);
+
+    if (!lesson) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated lesson not found",
+      });
+    }
+
+    if (lesson.module.course.userId !== userId) {
       return res.status(403).json({
         success: false,
         message: "Only the course owner can delete YouTube resources",

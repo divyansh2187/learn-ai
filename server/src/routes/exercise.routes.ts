@@ -7,7 +7,6 @@ import {
 
 const router = Router();
 
-
 // ============================================
 // GET EXERCISES FOR A LESSON
 // ============================================
@@ -24,7 +23,14 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
 
     const lesson = await prisma.lesson.findUnique({
       where: {
@@ -62,8 +68,6 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
   }
 });
 
-
-
 // ============================================
 // GET EXERCISE PROGRESS FOR CURRENT USER
 // ============================================
@@ -79,7 +83,14 @@ router.get("/progress/:exerciseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { exerciseId } = req.params;
+    const exerciseId = req.params.exerciseId;
+
+    if (typeof exerciseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid exercise ID",
+      });
+    }
 
     const exercise = await prisma.exercise.findUnique({
       where: { id: exerciseId },
@@ -135,7 +146,15 @@ router.put("/progress/:exerciseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { exerciseId } = req.params;
+    const exerciseId = req.params.exerciseId;
+
+    if (typeof exerciseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid exercise ID",
+      });
+    }
+
     const { completed } = req.body;
 
     if (typeof completed !== "boolean") {
@@ -191,8 +210,6 @@ router.put("/progress/:exerciseId", requireAuth, async (req, res) => {
   }
 });
 
-
-
 // ============================================
 // GET SINGLE EXERCISE
 // ============================================
@@ -209,7 +226,14 @@ router.get("/:exerciseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { exerciseId } = req.params;
+    const exerciseId = req.params.exerciseId;
+
+    if (typeof exerciseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid exercise ID",
+      });
+    }
 
     const exercise = await prisma.exercise.findUnique({
       where: {
@@ -238,7 +262,6 @@ router.get("/:exerciseId", requireAuth, async (req, res) => {
   }
 });
 
-
 // ============================================
 // UPDATE EXERCISE
 // ============================================
@@ -255,7 +278,14 @@ router.patch("/:exerciseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { exerciseId } = req.params;
+    const exerciseId = req.params.exerciseId;
+
+    if (typeof exerciseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid exercise ID",
+      });
+    }
 
     const { title, description, difficulty, solution, hints } = req.body;
 
@@ -390,7 +420,6 @@ router.patch("/:exerciseId", requireAuth, async (req, res) => {
 // DELETE EXERCISE
 // ============================================
 
-
 router.delete("/:exerciseId", requireAuth, async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
@@ -403,7 +432,14 @@ router.delete("/:exerciseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { exerciseId } = req.params;
+   const exerciseId = req.params.exerciseId;
+
+if (typeof exerciseId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid exercise ID",
+  });
+}
 
     // Find exercise and its course owner
     const exercise = await prisma.exercise.findUnique({
@@ -464,6 +500,5 @@ router.delete("/:exerciseId", requireAuth, async (req, res) => {
     });
   }
 });
-
 
 export default router;

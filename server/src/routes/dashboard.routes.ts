@@ -189,7 +189,7 @@ router.get("/overview", requireAuth, async (req, res) => {
         stats: {
           totalCourses: courses.length,
           completedCourses,
-          inProgressCourses: courses.filter(
+          inProgressCourses: courseStats.filter(
             (course) =>
               course.progressPercent > 0 && course.progressPercent < 100,
           ).length,

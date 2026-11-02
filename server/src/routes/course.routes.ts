@@ -434,7 +434,15 @@ router.post(
         });
       }
 
-      const { courseId, lessonId } = req.params;
+      const courseId = req.params.courseId;
+      const lessonId = req.params.lessonId;
+
+      if (typeof courseId !== "string" || typeof lessonId !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid course or lesson ID",
+        });
+      }
 
       // --------------------------------
       // Find course + lesson
@@ -927,7 +935,15 @@ router.post("/:courseId/enroll", requireAuth, async (req, res) => {
       });
     }
 
-    const { courseId } = req.params;
+    const courseId = req.params.courseId;
+
+    if (typeof courseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid course ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const course = await prisma.course.findFirst({
@@ -1174,7 +1190,14 @@ router.get("/:courseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { courseId } = req.params;
+    const courseId = req.params.courseId;
+
+    if (typeof courseId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid course ID",
+      });
+    }
 
     const course = await prisma.course.findFirst({
       where: {
@@ -1236,7 +1259,15 @@ router.get("/:courseId/lessons/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { courseId, lessonId } = req.params;
+    const courseId = req.params.courseId;
+    const lessonId = req.params.lessonId;
+
+    if (typeof courseId !== "string" || typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid course or lesson ID",
+      });
+    }
 
     const course = await prisma.course.findFirst({
       where: {

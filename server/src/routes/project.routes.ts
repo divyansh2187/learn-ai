@@ -40,7 +40,14 @@ router.get("/course/:courseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { courseId } = req.params;
+    const courseId = req.params.courseId;
+
+if (typeof courseId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid course ID",
+  });
+}
 
     const course = await prisma.course.findUnique({
       where: {
@@ -100,7 +107,14 @@ router.get("/:projectId", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+   const projectId = req.params.projectId;
+
+if (typeof projectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid project ID",
+  });
+}
 
     const project = await prisma.project.findUnique({
       where: {
@@ -155,7 +169,14 @@ router.post("/course/:courseId", requireAuth, async (req, res) => {
       });
     }
 
-    const { courseId } = req.params;
+    const courseId = req.params.courseId;
+
+if (typeof courseId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid course ID",
+  });
+}
     const userId = authReq.user.id;
 
     const {
@@ -316,7 +337,14 @@ router.patch("/:projectId", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+   const projectId = req.params.projectId;
+
+if (typeof projectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid project ID",
+  });
+}
     const userId = authReq.user.id;
 
     /* ----------------------------------------------------------------------
@@ -506,7 +534,14 @@ router.delete("/:projectId", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+   const projectId = req.params.projectId;
+
+if (typeof projectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid project ID",
+  });
+}
     const userId = authReq.user.id;
 
     /* ----------------------------------------------------------------------
@@ -588,7 +623,14 @@ router.post("/:projectId/start", requireAuth, async (req, res) => {
       });
     }
 
-    const { projectId } = req.params;
+   const projectId = req.params.projectId;
+
+if (typeof projectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid project ID",
+  });
+}
     const userId = authReq.user.id;
 
     /* ----------------------------------------------------------------------
@@ -765,7 +807,14 @@ router.get(
         });
       }
 
-      const { userProjectId } = req.params;
+      const userProjectId = req.params.userProjectId;
+
+if (typeof userProjectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid user project ID",
+  });
+}
       const userId = authReq.user.id;
 
       const submission =
@@ -837,7 +886,14 @@ router.patch(
         });
       }
 
-      const { userProjectId } = req.params;
+     const userProjectId = req.params.userProjectId;
+
+if (typeof userProjectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid user project ID",
+  });
+}
       const userId = authReq.user.id;
 
       const {
@@ -985,7 +1041,14 @@ router.post(
         });
       }
 
-      const { userProjectId } = req.params;
+      const userProjectId = req.params.userProjectId;
+
+if (typeof userProjectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid user project ID",
+  });
+}
       const userId = authReq.user.id;
 
       /* --------------------------------------------------------------------
@@ -1101,7 +1164,14 @@ router.post(
         });
       }
 
-      const { userProjectId } = req.params;
+      const userProjectId = req.params.userProjectId;
+
+if (typeof userProjectId !== "string") {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid user project ID",
+  });
+}
       const userId = authReq.user.id;
 
       const submission =

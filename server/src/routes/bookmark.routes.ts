@@ -11,253 +11,249 @@ const router = Router();
 // ADD BOOKMARK
 // ============================================
 
-router.post(
-  "/lesson/:lessonId",
-  requireAuth,
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
+router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
 
-      if (!authReq.user) {
-        return res.status(401).json({
-          success: false,
-          message: "Authentication required",
-          code: "AUTH_REQUIRED",
-        });
-      }
-
-      const { lessonId } = req.params;
-      const userId = authReq.user.id;
-
-      // Check lesson exists
-      const lesson = await prisma.lesson.findUnique({
-        where: {
-          id: lessonId,
-        },
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
       });
+    }
 
-      if (!lesson) {
-        return res.status(404).json({
-          success: false,
-          message: "Lesson not found",
-        });
-      }
+    const lessonId = req.params.lessonId;
 
-      // Create bookmark
-      const bookmark = await prisma.bookmark.upsert({
-        where: {
-          userId_lessonId: {
-            userId,
-            lessonId,
-          },
-        },
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
 
-        create: {
+    const userId = authReq.user.id;
+
+    // Check lesson exists
+    const lesson = await prisma.lesson.findUnique({
+      where: {
+        id: lessonId,
+      },
+    });
+
+    if (!lesson) {
+      return res.status(404).json({
+        success: false,
+        message: "Lesson not found",
+      });
+    }
+
+    // Create bookmark
+    const bookmark = await prisma.bookmark.upsert({
+      where: {
+        userId_lessonId: {
           userId,
           lessonId,
         },
+      },
 
-        update: {},
-      });
+      create: {
+        userId,
+        lessonId,
+      },
 
-      return res.status(201).json({
-        success: true,
-        message: "Bookmark added successfully",
-        data: bookmark,
-      });
-    } catch (error) {
-      console.error("Add bookmark error:", error);
+      update: {},
+    });
 
-      return res.status(500).json({
-        success: false,
-        message: "Failed to add bookmark",
-      });
-    }
+    return res.status(201).json({
+      success: true,
+      message: "Bookmark added successfully",
+      data: bookmark,
+    });
+  } catch (error) {
+    console.error("Add bookmark error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add bookmark",
+    });
   }
-);
+});
 
 // ============================================
 // REMOVE BOOKMARK
 // ============================================
 
-router.delete(
-  "/lesson/:lessonId",
-  requireAuth,
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
+router.delete("/lesson/:lessonId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
 
-      if (!authReq.user) {
-        return res.status(401).json({
-          success: false,
-          message: "Authentication required",
-          code: "AUTH_REQUIRED",
-        });
-      }
-
-      const { lessonId } = req.params;
-      const userId = authReq.user.id;
-
-      const bookmark =
-        await prisma.bookmark.findUnique({
-          where: {
-            userId_lessonId: {
-              userId,
-              lessonId,
-            },
-          },
-        });
-
-      if (!bookmark) {
-        return res.status(404).json({
-          success: false,
-          message: "Bookmark not found",
-        });
-      }
-
-      await prisma.bookmark.delete({
-        where: {
-          userId_lessonId: {
-            userId,
-            lessonId,
-          },
-        },
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Bookmark removed successfully",
-      });
-    } catch (error) {
-      console.error(
-        "Remove bookmark error:",
-        error
-      );
-
-      return res.status(500).json({
+    if (!authReq.user) {
+      return res.status(401).json({
         success: false,
-        message: "Failed to remove bookmark",
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
       });
     }
+
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
+    const userId = authReq.user.id;
+
+    const bookmark = await prisma.bookmark.findUnique({
+      where: {
+        userId_lessonId: {
+          userId,
+          lessonId,
+        },
+      },
+    });
+
+    if (!bookmark) {
+      return res.status(404).json({
+        success: false,
+        message: "Bookmark not found",
+      });
+    }
+
+    await prisma.bookmark.delete({
+      where: {
+        userId_lessonId: {
+          userId,
+          lessonId,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Bookmark removed successfully",
+    });
+  } catch (error) {
+    console.error("Remove bookmark error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove bookmark",
+    });
   }
-);
+});
 
 // ============================================
 // CHECK BOOKMARK
 // ============================================
 
-router.get(
-  "/lesson/:lessonId",
-  requireAuth,
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
+router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
 
-      if (!authReq.user) {
-        return res.status(401).json({
-          success: false,
-          message: "Authentication required",
-          code: "AUTH_REQUIRED",
-        });
-      }
-
-      const { lessonId } = req.params;
-      const userId = authReq.user.id;
-
-      const bookmark =
-        await prisma.bookmark.findUnique({
-          where: {
-            userId_lessonId: {
-              userId,
-              lessonId,
-            },
-          },
-        });
-
-      return res.status(200).json({
-        success: true,
-        data: {
-          bookmarked: !!bookmark,
-          bookmark,
-        },
-      });
-    } catch (error) {
-      console.error(
-        "Check bookmark error:",
-        error
-      );
-
-      return res.status(500).json({
+    if (!authReq.user) {
+      return res.status(401).json({
         success: false,
-        message: "Failed to check bookmark",
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
       });
     }
+
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
+    const userId = authReq.user.id;
+
+    const bookmark = await prisma.bookmark.findUnique({
+      where: {
+        userId_lessonId: {
+          userId,
+          lessonId,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        bookmarked: !!bookmark,
+        bookmark,
+      },
+    });
+  } catch (error) {
+    console.error("Check bookmark error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check bookmark",
+    });
   }
-);
+});
 
 // ============================================
 // GET ALL USER BOOKMARKS
 // ============================================
 
-router.get(
-  "/",
-  requireAuth,
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
 
-      if (!authReq.user) {
-        return res.status(401).json({
-          success: false,
-          message: "Authentication required",
-          code: "AUTH_REQUIRED",
-        });
-      }
+    if (!authReq.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
+      });
+    }
 
-      const userId = authReq.user.id;
+    const userId = authReq.user.id;
 
-      const bookmarks =
-        await prisma.bookmark.findMany({
-          where: {
-            userId,
-          },
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId,
+      },
 
-          orderBy: {
-            createdAt: "desc",
-          },
+      orderBy: {
+        createdAt: "desc",
+      },
 
+      include: {
+        lesson: {
           include: {
-            lesson: {
-              include: {
-                module: {
-                  select: {
-                    id: true,
-                    title: true,
-                    order: true,
-                    courseId: true,
-                  },
-                },
+            module: {
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                courseId: true,
               },
             },
           },
-        });
+        },
+      },
+    });
 
-      return res.status(200).json({
-        success: true,
-        data: bookmarks,
-      });
-    } catch (error) {
-      console.error(
-        "Get bookmarks error:",
-        error
-      );
+    return res.status(200).json({
+      success: true,
+      data: bookmarks,
+    });
+  } catch (error) {
+    console.error("Get bookmarks error:", error);
 
-      return res.status(500).json({
-        success: false,
-        message: "Failed to get bookmarks",
-      });
-    }
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get bookmarks",
+    });
   }
-);
+});
 
 export default router;

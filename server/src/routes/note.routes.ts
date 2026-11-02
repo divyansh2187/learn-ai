@@ -23,7 +23,15 @@ router.get("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const notes = await prisma.note.findMany({
@@ -66,7 +74,15 @@ router.post("/lesson/:lessonId", requireAuth, async (req, res) => {
       });
     }
 
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId;
+
+    if (typeof lessonId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lesson ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const { content } = req.body;
@@ -130,7 +146,15 @@ router.patch("/:noteId", requireAuth, async (req, res) => {
       });
     }
 
-    const { noteId } = req.params;
+    const noteId = req.params.noteId;
+
+    if (typeof noteId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const { content } = req.body;
@@ -196,7 +220,15 @@ router.delete("/:noteId", requireAuth, async (req, res) => {
       });
     }
 
-    const { noteId } = req.params;
+    const noteId = req.params.noteId;
+
+    if (typeof noteId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID",
+      });
+    }
+
     const userId = authReq.user.id;
 
     const existingNote = await prisma.note.findFirst({
