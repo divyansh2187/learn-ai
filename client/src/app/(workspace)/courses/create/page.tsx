@@ -44,66 +44,69 @@ export default function CreateCoursePage() {
     });
   };
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    setError("");
+ 
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  setError("");
 
-    if (!topic.trim()) {
-      setError("Please enter a course topic.");
+  if (!topic.trim()) {
+    setError("Please enter a course topic.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await apiFetch("/courses/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        topic: topic.trim(),
+        goal: goal.trim(),
+        level,
+        style,
+        duration,
+        includeVideos,
+        includeQuizzes,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.status === 401) {
+      window.location.assign("/login");
       return;
     }
 
-    try {
-      setLoading(true);
-
-      const result = await apiFetch("/courses/generate", {
-        method: "POST",
-        body: JSON.stringify({
-          topic: topic.trim(),
-          goal: goal.trim(),
-          level,
-          style,
-          duration,
-          includeVideos,
-          includeQuizzes,
-        }),
-      });
-
-      if (result?.status === 401) {
-        router.push("/login");
-        return;
-      }
-
-      if (result?.status === 403) {
-        setError("You don't have permission to create a course.");
-        return;
-      }
-
-      if (!result?.success || !result?.course?.id) {
-        setError(
-          result?.message ||
-            "Unable to generate your course. Please try again."
-        );
-        return;
-      }
-
-      router.push(`/courses/${result.course.id}`);
-    } catch (err) {
-      console.error("Course generation error:", err);
-
-      setError(
-        "Something went wrong while creating your course. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    if (response.status === 403) {
+      setError("You don't have permission to create a course.");
+      return;
     }
-  };
+
+    const courseId = result?.data?.id;
+
+    if (!response.ok || !result?.success || !courseId) {
+      setError(
+        result?.message || "Unable to generate your course. Please try again."
+      );
+      return;
+    }
+
+    // Navigate after successful course creation
+    window.location.assign(`/courses/${encodeURIComponent(courseId)}`);
+
+  } catch (err) {
+    console.error("Course generation error:", err);
+    setError("Something went wrong while creating your course.");
+    setLoading(false);
+  }
+};
+
 
   return (
     <main className="relative isolate h-full min-h-0 w-full overflow-hidden bg-transparent text-white">
-
       {/* BACKGROUND GRID */}
 
       <div
@@ -128,11 +131,9 @@ export default function CreateCoursePage() {
       {/* MAIN LAYOUT */}
 
       <div className="mx-auto grid h-full min-h-0 w-full max-w-[1440px] grid-cols-1 gap-4 overflow-hidden px-[clamp(12px,2vw,30px)] py-[clamp(12px,2vh,24px)] lg:grid-cols-[minmax(0,1fr)_170px] lg:gap-5">
-
         {/* LEFT SIDE */}
 
         <div className="flex h-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-
           {/* HEADER */}
 
           <header className="mb-[clamp(12px,2vh,22px)] shrink-0">
@@ -141,7 +142,7 @@ export default function CreateCoursePage() {
             </span>
 
             <h1 className="mt-1 text-[clamp(20px,2.1vw,30px)] font-bold leading-tight tracking-tight text-white">
-              Create Your Personalized Course
+              Create Your Personalized Course TEST
             </h1>
           </header>
 
@@ -151,7 +152,6 @@ export default function CreateCoursePage() {
             onSubmit={handleSubmit}
             className={`relative mb-3 min-w-0 shrink-0 space-y-[clamp(10px,1.5vh,18px)] overflow-hidden rounded-[clamp(16px,1.5vw,22px)] ${glass} p-[clamp(13px,1.6vw,24px)]`}
           >
-
             {/* GLASS REFLECTION */}
 
             <div
@@ -160,7 +160,6 @@ export default function CreateCoursePage() {
             />
 
             <div className="relative z-10 space-y-[clamp(10px,1.5vh,18px)]">
-
               {/* TOPIC */}
 
               <section id="course-topic" className="scroll-mt-5">
@@ -191,14 +190,15 @@ export default function CreateCoursePage() {
                 </p>
 
                 <div className="relative rounded-full border border-white/[0.16] bg-white/[0.07] p-1.5 backdrop-blur-xl">
-
                   {/* ANIMATED SELECTION */}
 
                   <div
                     className="absolute bottom-1.5 top-1.5 w-[calc((100%-12px)/3)] rounded-full bg-[#D0DFF0] shadow-[0_2px_15px_rgba(208,223,240,0.18)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                     style={{
                       transform: `translateX(${
-                        ["Beginner", "Intermediate", "Advanced"].indexOf(level) * 100
+                        ["Beginner", "Intermediate", "Advanced"].indexOf(
+                          level,
+                        ) * 100
                       }%)`,
                     }}
                   />
@@ -326,9 +326,7 @@ export default function CreateCoursePage() {
                         setActiveStep(2);
                       }}
                       className={`flex min-h-[clamp(58px,8vh,76px)] flex-col items-start justify-center rounded-xl border px-3 py-2 text-left transition-all duration-200 ${
-                        style === item.name
-                          ? selectedClass
-                          : unselectedClass
+                        style === item.name ? selectedClass : unselectedClass
                       }`}
                     >
                       <span className="text-[clamp(11px,0.9vw,13px)] font-semibold">
@@ -357,7 +355,6 @@ export default function CreateCoursePage() {
                   className="mb-2 block text-[clamp(12px,0.95vw,14px)] font-semibold text-white"
                 >
                   What is your learning goal?
-
                   <span className="ml-2 font-medium text-[#CBD5E1]">
                     (Optional)
                   </span>
@@ -375,16 +372,12 @@ export default function CreateCoursePage() {
 
               {/* PREFERENCES */}
 
-              <section
-                id="course-preferences"
-                className="scroll-mt-5"
-              >
+              <section id="course-preferences" className="scroll-mt-5">
                 <p className="mb-2 text-[clamp(12px,0.95vw,14px)] font-semibold text-white">
                   Course preferences
                 </p>
 
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-
                   <label className="flex min-h-[clamp(42px,5.5vh,54px)] cursor-pointer items-center gap-3 rounded-xl border border-white/[0.16] bg-white/[0.07] px-3 py-2 backdrop-blur-xl transition hover:border-white/30 hover:bg-white/[0.12]">
                     <input
                       type="checkbox"
@@ -414,7 +407,6 @@ export default function CreateCoursePage() {
                       Include quizzes
                     </span>
                   </label>
-
                 </div>
               </section>
 
@@ -448,7 +440,6 @@ export default function CreateCoursePage() {
                   </span>
                 </button>
               </div>
-
             </div>
           </form>
         </div>
@@ -456,9 +447,9 @@ export default function CreateCoursePage() {
         {/* RIGHT SIDE - GLASS STEP NAVIGATION */}
 
         <aside className="hidden min-w-0 lg:flex lg:h-full lg:w-[170px] lg:items-center lg:justify-center">
-
-          <div className={`relative h-[min(72vh,680px)] min-h-[420px] w-full overflow-hidden rounded-[24px] ${glass} p-4`}>
-
+          <div
+            className={`relative h-[min(72vh,680px)] min-h-[420px] w-full overflow-hidden rounded-[24px] ${glass} p-4`}
+          >
             {/* GLASS REFLECTION */}
 
             <div
@@ -476,7 +467,6 @@ export default function CreateCoursePage() {
             {/* STEP NAVIGATION */}
 
             <div className="relative z-10 flex h-full flex-col justify-between">
-
               {steps.map((step, index) => {
                 const isActive = activeStep === index;
                 const isCompleted = activeStep > index;
@@ -485,9 +475,7 @@ export default function CreateCoursePage() {
                   <button
                     key={step.number}
                     type="button"
-                    onClick={() =>
-                      navigateToStep(index, step.id)
-                    }
+                    onClick={() => navigateToStep(index, step.id)}
                     aria-current={isActive ? "step" : undefined}
                     className="group flex items-center gap-3 rounded-xl p-1.5 text-left transition hover:bg-white/[0.08]"
                   >
@@ -513,11 +501,9 @@ export default function CreateCoursePage() {
                   </button>
                 );
               })}
-
             </div>
           </div>
         </aside>
-
       </div>
     </main>
   );
