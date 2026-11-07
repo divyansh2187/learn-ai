@@ -9,8 +9,10 @@ RUN npm ci
 
 COPY . .
 
-RUN DATABASE_URL="postgresql://postgres:postgres@localhost:5432/learnai?schema=public" npx prisma generate
+# Generate Prisma Client without using production credentials
+RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" npx prisma generate
 
+# Compile TypeScript
 RUN npm run build
 
 EXPOSE 5000
